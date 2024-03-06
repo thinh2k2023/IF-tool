@@ -17,10 +17,13 @@ using WPFiftool.Models.ConfigSignal;
 using WPFiftool.ViewModels.ConfigSignalVM;
 using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Vml.Spreadsheet;
-using System.Web.UI.WebControls;
-using System.Windows.Forms;
+
 using WPFiftool.Models;
 using ControlzEx.Standard;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
+using System.Web.UI;
+using OfficeOpenXml.FormulaParsing.Utilities;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 
 namespace WPFiftool.Views
 {
@@ -29,6 +32,17 @@ namespace WPFiftool.Views
     /// </summary>
     public partial class ConfigSignalWindow : Window
     {
+
+        private const UInt16 digitalInputOffset = 0;        //16 signals
+        private const UInt16 analogInputOffset = 16;        //16 signals
+        private const UInt16 PWMInputOffset = 32;           //8 signals
+        private const UInt16 ACInputOffset = 40;            //8 signals
+
+        private const UInt16 DigitalOutputOffset = 56;      //16 signals
+        private const UInt16 AnalogOutputOffset = 72;       //16 signals
+        private const UInt16 PWMOutputOffset = 88;          //8 signals
+        private const UInt16 ACOutputOffset = 96;           //16 signals
+
         // declearate some variable for onpen window one time
         const Int16 OFF = 0;
         const Int16 ON = 1;
@@ -37,11 +51,110 @@ namespace WPFiftool.Views
         {
             InitializeComponent();
             SigmntDG.ItemsSource = ConfigSignalHandle.SignalMonitorConfigData;
+
+            SigmntDG.CellEditEnding += DataGrid_CellEditEnding;
         }
 
-        //InputMonitor.SignalMonitorDataSave
+
+        //text input 
+
+        private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            var DataGridTemp = (DataGrid)sender;
+
+            //var PreviousConfigSignal = (ConfigSignalModel)DataGridTemp.SelectedValue;
+            var PreviousConfigSignal = (ConfigSignalModel)e.Row.Item;
+
+
+
+            Console.WriteLine(PreviousConfigSignal.MaxLabel);
+            //Console.WriteLine(EditingConfigSignal.MaxLabel);
+
+            String editedValue = "";
+            if (e.EditingElement is TextBox textBox)
+            {
+                editedValue = textBox.Text;
+                Console.WriteLine(editedValue);
+                //Console.WriteLine($"{editedValue}");
+
+            }
+
+            //configSignalModelTemp = (ConfigSignalModel)e.Row.Item;
+
+            //Console.WriteLine(configSignalModelTemp.Type);
+            //Console.WriteLine(configSignalModelTemp.IO);
+            //Console.WriteLine(configSignalModelTemp.Channel);
+
+            //Digital input: id 0 to 15
+
+            //analog input: id 16 to 31
+            //Console.WriteLine(configSignalModelTemp.ID);
+
+            //e.Cancel = true;
+
+
+            if (PreviousConfigSignal.ID >= digitalInputOffset && PreviousConfigSignal.ID < analogInputOffset) //for digital input
+            {
+                //CheckTextInputAnalogInput(editedValue, e);
+                //e.Cancel = true;
+                //ConfigSignalHandle.SignalMonitorConfigData[15].MaxLabel = "100000";
+            }
+
+            else if (PreviousConfigSignal.ID >= analogInputOffset && PreviousConfigSignal.ID < PWMInputOffset) //for analog input
+            {
+                //CheckTextInputAnalogInput(editedValue, e);
+                //e.Cancel = true;
+                //ConfigSignalHandle.SignalMonitorConfigData[15].MaxLabel = "100000";
+                string a = PreviousConfigSignal.MinLabel;
+                string b = a;
+                CheckMaxAnalogInput(PreviousConfigSignal.ID, editedValue, b, e);
+            }
+
+
+            if (PreviousConfigSignal.ID == 16)
+            {
+                //CheckTextInputAnalogInput(editedValue, e);
+                //e.Cancel = true;
+                //ConfigSignalHandle.SignalMonitorConfigData[15].MaxLabel = "100000";
+            }
+
+            //e.Cancel = true;
+        }
+
+
+        private void CheckMaxAnalogInput(byte ID, string MaxAnalogInputDataEditing, string MaxAnalogInputDataPrevious, DataGridCellEditEndingEventArgs e)
+        {
+            bool flagTemp = false;
+            double AnalogInputDataTemp;
+            try
+            {
+
+                AnalogInputDataTemp = Convert.ToDouble(MaxAnalogInputDataEditing);
+                //Console.WriteLine(AnalogInputDataTemp);
+            }
+            catch
+            {
+                //MessageBox.Show("Input mus be double value");
+                
+                flagTemp = true;
+            }
+
+            if (flagTemp != false)
+            {
+                ConfigSignalHandle.SignalMonitorConfigData[ID].MinLabel = MaxAnalogInputDataPrevious.ToString();
+            }
+
+        Console.WriteLine(MaxAnalogInputDataPrevious);
+        }
+
+
+
+        //InputMonitor.SignalMonitorDataSave\
+        static UInt16 cnt_temp = 0;
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            cnt_temp++;
             InputMonitor.SignalMonitorDataSave.Clear();
             InputMonitor.SignalMonitorDataSaveExcel.Clear();
             foreach (ConfigSignalModel signal in ConfigSignalHandle.SignalMonitorConfigData)
@@ -117,6 +230,8 @@ namespace WPFiftool.Views
 
 
             InputMonitor.FilterData();
+
+            ConfigSignalHandle.SignalMonitorConfigData[0].Resolution = cnt_temp.ToString();
         }
 
         private void StartUpProgramLoaded(object sender, RoutedEventArgs e)
