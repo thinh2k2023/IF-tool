@@ -1,0 +1,285 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ClosedXML.Excel;
+using System.Windows;
+using WPFiftool.Models;
+using static WPFiftool.Models.Common_string;
+using DocumentFormat.OpenXml.Spreadsheet;
+using WPFiftool.ViewModels.SignalMonitor;
+using ControlzEx.Standard;
+
+namespace WPFiftool.ViewModels.ConfigfileViewModel
+{
+    public partial class Save_file
+    {
+        //public static Binding[,] dataBinding = new Binding[8, 16];  //  index = 0 -> 7 : Digital in,analog in , pwm in, AC in , di out , analog out ,pwm,AC output 
+        private static string Path_file_save;
+        //private static List<Common_string.Signal_Title> List_save = new List<Common_string.Signal_Title>();
+
+        private static List<Common_string.Data_save> data_save = new List<Common_string.Data_save>();
+        private static List<Common_string.Title_save> title_save = new List<Common_string.Title_save>();
+        public static void Get_data_save()
+        {
+            foreach (Common_string.Signal_Title signal_save in InputMonitor.SignalMonitorDataSave)
+            {
+               
+                Common_string.Data_save newData = new Common_string.Data_save();
+               
+                newData.Type = signal_save.Type;
+                newData.Channel = signal_save.Channel;
+                newData.IO = signal_save.IO;
+                newData.SignalName = signal_save.SignalName;
+                newData.Element = signal_save.Element;
+                newData.Value = signal_save.Value;
+                newData.Unit = signal_save.Unit;
+                newData.MinLabel = signal_save.MinLabel;
+                newData.MaxLabel = signal_save.MaxLabel;
+                newData.Resolution = signal_save.Resolution;
+                newData.Offset = signal_save.Offset;
+                newData.VisibleMonitor = signal_save.VisibleMonitor;
+                newData.OrderMonitor = signal_save.OrderMonitor;
+                newData.VisibleOutput = signal_save.VisibleOutput;
+                newData.OrderOutput = signal_save.OrderOutput;
+                
+                data_save.Add(newData);
+            }
+            for (int i = 0; i < Common_string.check_format.Length; i++)
+            {
+                Common_string.Title_save Title_save = new Common_string.Title_save();
+                Title_save.Title = Common_string.check_format[i];
+                title_save.Add(Title_save);
+            }
+        }
+        public static void save_function()
+        {
+            Path_file_save = Properties.Settings.Default.ImportedFilePath;
+
+            Get_data_save();
+            // Tạo một workbook mới mỗi lần muốn lưu
+            using (var wbook = new XLWorkbook(Path_file_save))
+            {
+                var ws = wbook.Worksheet("ConfigData");
+
+                // Ghi giá trị của title_save lần lượt vào các ô trong hàng đầu tiên
+                //for (int i = 0; i < title_save.Count; i++)
+                //{
+                //    ws.Cell(1, i + 1).Value = title_save[i].Title;
+                //}
+                ws.Cell(2, 1).InsertData(data_save);
+                //ws.Cell(2, 1).InsertData(List_save);
+                // Tự động điều chỉnh độ rộng của các cột để phù hợp với nội dung
+                ws.Columns().AdjustToContents();
+                // Cộng thêm 2 khoảng trắng vào độ rộng của mỗi cột
+                for (int i = 1; i <= ws.Columns().Count(); i++)
+                {
+                    ws.Column(i).Width += 2; // Cộng thêm 2 khoảng trắng cho mỗi cột
+                }
+                wbook.SaveAs(Path_file_save);
+                //wbook.SaveAs("Export/Export.xlsx");
+                MessageBox.Show("Save completed", "Notification", MessageBoxButton.OK, MessageBoxImage.Information);
+                // Xóa danh sách để chuẩn bị cho lần lưu tiếp theo
+                data_save.Clear();
+                //title_save.Clear();
+            }
+        }
+        public static void Save_data_output_control()
+        {
+            Path_file_save = Properties.Settings.Default.ImportedFilePath;
+            using (var wbook = new XLWorkbook(Path_file_save))
+            {
+                var ws_save_output_control = wbook.Worksheet("ConfigData");
+
+                var validateList = "\"Yes,No\"";
+
+                ws_save_output_control.Range("N50:N104").SetDataValidation().List(validateList, true);
+
+                // Add data to value column of excel,Cannot combine 1 for because the arrays are of different data types
+                for (int i = 58; i < 74; i++)
+                {
+                    ws_save_output_control.Cell(i, 6).Value = DataConversion.DigitalOut[i - 58];
+                }
+                for (int i = 74; i < 90; i++)
+                {
+                    ws_save_output_control.Cell(i, 6).Value = DataConversion.AnalogOut[i - 74];
+                }
+                for (int i = 90; i < 98; i += 2)
+                {
+                    ws_save_output_control.Cell(i, 6).Value = DataConversion.PWMDutyOut[(i - 90) / 2];
+                    ws_save_output_control.Cell(i + 1, 6).Value = DataConversion.PWMFreqOut[((i + 1) - 90) / 2];
+                }
+
+
+                ws_save_output_control.Cell(98, 6).Value = DataConversion.ACRmsOut[0];
+                ws_save_output_control.Cell(99, 6).Value = DataConversion.ACFreqOut[0];
+                ws_save_output_control.Cell(100, 6).Value = DataConversion.ACTypeWaveOut[0];
+                int i_channel = 0;
+                for (int i = 101; i < 113; i += 4)
+                {
+                    i_channel++;
+                    ws_save_output_control.Cell(i, 6).Value = DataConversion.ACRmsOut[i_channel];
+                    ws_save_output_control.Cell(i + 1, 6).Value = DataConversion.ACFreqOut[i_channel];
+                    ws_save_output_control.Cell(i + 2, 6).Value = DataConversion.ACPsOut[i_channel];
+                    ws_save_output_control.Cell(i + 3, 6).Value = DataConversion.ACTypeWaveOut[i_channel];
+                }
+
+                /*get value visibility of digital output*/
+                int Y_N_visibility_di_out;
+                for (int i = 58; i < 74; i++)
+                {
+                    Y_N_visibility_di_out = DataConversion.ComponentVisibilityTemp[i - 58];
+                    if (Y_N_visibility_di_out == 1)
+                    {
+                        ws_save_output_control.Cell(i, 14).Value = "Yes";
+                    }
+                    else
+                    {
+                        ws_save_output_control.Cell(i, 14).Value = "No";
+                    }
+
+                }
+                /*get value visibility of analog output*/
+                int Y_N_visibility_analog_out;
+                for (int i = 74; i < 90; i++)
+                {
+                    Y_N_visibility_analog_out = DataConversion.ComponentVisibilityTemp[i - 58];
+                    if (Y_N_visibility_analog_out == 1)
+                    {
+                        ws_save_output_control.Cell(i, 14).Value = "Yes";
+                    }
+                    else
+                    {
+                        ws_save_output_control.Cell(i, 14).Value = "No";
+                    }
+
+                }
+
+                /*get value visibility of pwm output*/
+                int Y_N_visibility_duty, Y_N_visibility_fre;
+                /*Channel 0*/
+                Y_N_visibility_duty = DataConversion.ComponentVisibilityTemp[32];
+                if (Y_N_visibility_duty == 1)
+                {
+                    ws_save_output_control.Cell(90, 14).Value = "Yes";
+                }
+                else
+                {
+                    ws_save_output_control.Cell(90, 14).Value = "No";
+                }
+                Y_N_visibility_fre = DataConversion.ComponentVisibilityTemp[32];
+                if (Y_N_visibility_fre == 1)
+                {
+                    ws_save_output_control.Cell(91, 14).Value = "Yes";
+                }
+                else
+                {
+                    ws_save_output_control.Cell(91, 14).Value = "No";
+                }
+
+                /*Channel 1*/
+                Y_N_visibility_duty = DataConversion.ComponentVisibilityTemp[33];
+                if (Y_N_visibility_duty == 1)
+                {
+                    ws_save_output_control.Cell(92, 14).Value = "Yes";
+                }
+                else
+                {
+                    ws_save_output_control.Cell(92, 14).Value = "No";
+                }
+                Y_N_visibility_fre = DataConversion.ComponentVisibilityTemp[33];
+                if (Y_N_visibility_fre == 1)
+                {
+                    ws_save_output_control.Cell(93, 14).Value = "Yes";
+                }
+                else
+                {
+                    ws_save_output_control.Cell(93, 14).Value = "No";
+                }
+
+                /*Channel 2*/
+                Y_N_visibility_duty = DataConversion.ComponentVisibilityTemp[34];
+                if (Y_N_visibility_duty == 1)
+                {
+                    ws_save_output_control.Cell(94, 14).Value = "Yes";
+                }
+                else
+                {
+                    ws_save_output_control.Cell(94, 14).Value = "No";
+                }
+                Y_N_visibility_fre = DataConversion.ComponentVisibilityTemp[34];
+                if (Y_N_visibility_fre == 1)
+                {
+                    ws_save_output_control.Cell(95, 14).Value = "Yes";
+                }
+                else
+                {
+                    ws_save_output_control.Cell(95, 14).Value = "No";
+                }
+
+                /*Channel 3*/
+                Y_N_visibility_duty = DataConversion.ComponentVisibilityTemp[35];
+                if (Y_N_visibility_duty == 1)
+                {
+                    ws_save_output_control.Cell(96, 14).Value = "Yes";
+                }
+                else
+                {
+                    ws_save_output_control.Cell(96, 14).Value = "No";
+                }
+                Y_N_visibility_fre = DataConversion.ComponentVisibilityTemp[35];
+                if (Y_N_visibility_fre == 1)
+                {
+                    ws_save_output_control.Cell(97, 14).Value = "Yes";
+                }
+                else
+                {
+                    ws_save_output_control.Cell(97, 14).Value = "No";
+                }
+                /*get value visibility of AC output*/
+                int Y_N_visibility_AC_out;
+                Y_N_visibility_AC_out = DataConversion.ComponentVisibilityTemp[36];
+                if (Y_N_visibility_AC_out == 1)
+                {
+                    ws_save_output_control.Cell(98, 14).Value = "Yes";
+                    ws_save_output_control.Cell(99, 14).Value = "Yes";
+                    ws_save_output_control.Cell(100, 14).Value = "Yes";
+                }
+                else
+                {
+                    ws_save_output_control.Cell(98, 14).Value = "No";
+                    ws_save_output_control.Cell(99, 14).Value = "No";
+                    ws_save_output_control.Cell(100, 14).Value = "No";
+                }
+
+
+                int index_visibility_AC = 36;
+                for (int i = 101; i < 113; i += 4)
+                {
+                    index_visibility_AC++;
+                    Y_N_visibility_AC_out = DataConversion.ComponentVisibilityTemp[index_visibility_AC];
+                    if (Y_N_visibility_AC_out == 1)
+                    {
+                        ws_save_output_control.Cell(i, 14).Value = "Yes";
+                        ws_save_output_control.Cell(i + 1, 14).Value = "Yes";
+                        ws_save_output_control.Cell(i + 2, 14).Value = "Yes";
+                        ws_save_output_control.Cell(i + 3, 14).Value = "Yes";
+                    }
+                    else
+                    {
+                        ws_save_output_control.Cell(i, 14).Value = "No";
+                        ws_save_output_control.Cell(i + 1, 14).Value = "No";
+                        ws_save_output_control.Cell(i + 2, 14).Value = "No";
+                        ws_save_output_control.Cell(i + 3, 14).Value = "No";
+                    }
+
+                }
+
+                wbook.SaveAs(Path_file_save);
+            }
+        }
+
+    }
+}
+

@@ -1,0 +1,81 @@
+﻿
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+using System.Windows;
+using ClosedXML.Excel;
+using WPFiftool.Models;
+using static WPFiftool.Models.Common_string;
+
+namespace WPFiftool.ViewModels.ConfigfileViewModel
+{
+    public partial class Read_file
+    {
+        public static event EventHandler EventChangedDefault = delegate { };
+        private static string Default_File_Path;
+        public static List<Common_string.Signal_Title> List_data_config_default_file = new List<Common_string.Signal_Title>();
+        public static List<Common_string.Auto_control_Title> List_data_autocontrol_default_file = new List<Common_string.Auto_control_Title>();
+        public static List<Common_string.Signal_Title> Data_clear_signal_monitor = new List<Common_string.Signal_Title>();  /*Use while in clear state then press reset*/
+
+        public static bool flag_press_clear = false;
+        private static XLWorkbook Workbook_clear;  //file excel
+        private static IXLWorksheet Worksheet_clear_1, Worksheet_clear_2;
+        public static void Get_path_default_file()
+        {
+            string strPathRoot = AppDomain.CurrentDomain.BaseDirectory;  /*Get the path to the application's .exe file.*/
+            string strPath_load_config = System.IO.Path.Combine(strPathRoot, "file_default");/*Get the path to the application's "file_default" folder.*/
+            string[] Arr_default_Files = Directory.GetFiles(strPath_load_config, @"DefaultConfig.xlsx*"); /* Get a list of paths of files named "DefaultConfig" in the directory*/
+
+            if (Arr_default_Files.Length > 0)
+            {
+                Default_File_Path = Arr_default_Files[0]; /*get the first file*/
+            }
+            else
+            {
+                //MessageBox.Show("'DefaultConfig' file is not available ", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        public static void Load_default_file()
+        {
+            flag_press_clear = true;
+            FileStream fileStream = null;
+            Get_path_default_file();
+            try /*Used to keep the app running even when the default config file is lost*/
+            {
+                fileStream = new FileStream(Default_File_Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite); /* create an open object to read the file operation*/
+                if (File_running(Default_File_Path))
+                {
+                    MessageBox.Show("The file is currently in use by another process", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    try
+                    {
+                        Workbook_clear = new XLWorkbook(fileStream); /* initialize object using file"*/
+                        Worksheet_clear_1 = Workbook_clear.Worksheet("ConfigData");
+                        Worksheet_clear_2 = Workbook_clear.Worksheet("AutoControl");
+                        get_data_sheet_ConfigData(Worksheet_clear_1, DataConversion.Data_clear);
+                        List_data_current_signal_monitor = new List<Common_string.Signal_Title>(List_read_sheet_config_signal_monitor);
+                        EventChangedDefault(null, EventArgs.Empty);
+                    }
+                    catch
+                    {
+                        // note :code thêm Default_File_Path không đúng:,File không tồn tại hoặc không thể mở:,File không phải là định dạng Excel hoặc định dạng Excel không đúng:
+                        MessageBox.Show("This file cannot be used", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                    finally
+                    {
+                        fileStream.Close();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                /*do nothing*/
+            }
+        }
+    }
+}

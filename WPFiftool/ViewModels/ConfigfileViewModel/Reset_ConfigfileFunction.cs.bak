@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using WPFiftool.Models;
+using WPFiftool.ViewModels.ConfigfileViewModel;
+
+namespace WPFiftool.ViewModels.ConfigfileViewModel
+{
+    public partial class Read_file
+    {
+        public static void Reset_config()
+        {
+            List<Common_string.Signal_Title> List_reset_data_config = new List<Common_string.Signal_Title>();
+            List<Common_string.Auto_control_Title> List_reset_data_autocontrol = new List<Common_string.Auto_control_Title>();
+            if (!Common_string.List_Empty(List_data_current_signal_monitor))
+            {
+                List_reset_data_config = new List<Common_string.Signal_Title>(List_data_current_signal_monitor);
+                //List_reset_data_autocontrol = new List<Common_string.Auto_control_Title>(List_data_autocontrol_open_app);
+                MessageBox.Show("Reset Successful !", " Notification", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("List_reset_data_config is empty", " Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+    }
+}

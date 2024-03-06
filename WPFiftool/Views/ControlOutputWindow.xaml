@@ -1,0 +1,972 @@
+﻿<Window x:Class="WPFiftool.Views.ControlOutputWindow" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPFiftool.Views"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+		TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+		TextElement.FontWeight="Regular"
+		TextElement.FontSize="16"
+		TextOptions.TextFormattingMode="Ideal"
+		TextOptions.TextRenderingMode="Auto"
+        
+		Background= "{DynamicResource MaterialDesignPaper}"
+		FontFamily= "{DynamicResource MaterialDesignFont}" Loaded="StartUpProgramLoaded" Unloaded="CloseProgramUnloaded"
+        Title="OutputControl" MinWidth="700" MinHeight="320" Height="930" Width="1320" Icon="/Resource/logo_icon.ico" >
+
+    <Window.Resources>
+
+        <!--declare some variables-->
+        <system:Double x:Key="AC_Out0_rms">20</system:Double>
+
+        <ContextMenu x:Key="ComponentContextMenu" Padding="0,0,0,0" >
+            <MenuItem Header="Remove" Click="Remove_Component_MouseLeftButtonUp" />
+            <!--<Separator/>-->
+        </ContextMenu>
+    </Window.Resources>
+
+    <Window.Style>
+        <StaticResource ResourceKey="MaterialDesignWindow"/>
+    </Window.Style>
+    <Grid Margin="0,0,0,0">
+        <Grid Height="70" Margin="10,10,10,10" VerticalAlignment="Top">
+            <Canvas>
+                <Button
+                    Width="71" Height="35"
+                    Content="Clear"  Command="{Binding Clear_ControlOutput}"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Style="{StaticResource MaterialDesignPaperLightButton}"
+                    ToolTip="Reset all value to default file" Margin="16,20" BorderBrush="#FFC9E1F3" 
+                    HorizontalAlignment="Left" VerticalAlignment="Center" Click="Clear_Btn_Click" />
+
+                <Button
+                    Width="71" Height="35"
+                    Content="Reset" x:Name="Reset_Btn"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Style="{StaticResource MaterialDesignPaperLightButton}"
+                    ToolTip="Reset all value to config file" Margin="94,20" BorderBrush="#FFC9E1F3" 
+                    HorizontalAlignment="Left" VerticalAlignment="Center" Click="Reset_Btn_Click" />
+
+                <Button
+                    Width="114" Height="35" 
+                    Content="Auto control"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Style="{StaticResource MaterialDesignPaperLightButton}"
+                    ToolTip="Auto control configure" Margin="173,20" BorderBrush="#FFC9E1F3"  
+                    HorizontalAlignment="Left" VerticalAlignment="Center" Click="ConfigAutoControl_Btn_Click" />
+
+                <ComboBox  x:Name="Select_signal"
+                           Width="250" Height="35" 
+                           materialDesign:HintAssist.Hint = "Select signal" 
+                           Style="{StaticResource MaterialDesignOutlinedComboBox}" 
+                           Canvas.Top="20" Canvas.Right="100"
+                           HorizontalAlignment="Right" VerticalAlignment="Center" Padding="5,2,5,2" MaxDropDownHeight="700">
+
+                    <TreeView >
+                        <StackPanel >
+                            <TreeViewItem Header="ALL DIGITAL OUT" Padding="0,0,0,0" >
+                                <StackPanel>
+                                    <CheckBox x:Name="Digi0_checkedBox" Click="Click_CheckBox_Digi0" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi0_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi0" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi1_checkedBox" Click="Click_CheckBox_Digi1" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi1_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi1" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi2_checkedBox" Click="Click_CheckBox_Digi2" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi2_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi2" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi3_checkedBox" Click="Click_CheckBox_Digi3" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi3_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi3" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi4_checkedBox" Click="Click_CheckBox_Digi4" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi4_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi4" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi5_checkedBox" Click="Click_CheckBox_Digi5" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi5_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi5" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi6_checkedBox" Click="Click_CheckBox_Digi6" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi6_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi6" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi7_checkedBox" Click="Click_CheckBox_Digi7" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi7_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi7" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi8_checkedBox" Click="Click_CheckBox_Digi8" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi8_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi8" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi9_checkedBox" Click="Click_CheckBox_Digi9" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi9_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi9" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi10_checkedBox" Click="Click_CheckBox_Digi10" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi10_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi10" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi11_checkedBox" Click="Click_CheckBox_Digi11" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi11_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi11" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi12_checkedBox" Click="Click_CheckBox_Digi12" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi12_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi12" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi13_checkedBox" Click="Click_CheckBox_Digi13" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi13_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi13" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi14_checkedBox" Click="Click_CheckBox_Digi14" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi14_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi14" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Digi15_checkedBox" Click="Click_CheckBox_Digi15" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Digi15_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Digi15" />
+                                    </CheckBox>
+                                </StackPanel>
+                            </TreeViewItem>
+                        </StackPanel>
+                    </TreeView>
+
+                    <TreeView>
+                        <StackPanel >
+                            <TreeViewItem Header="ALL ANALOG OUT" Padding="0,0,0,0" >
+                                <StackPanel>
+                                    <CheckBox x:Name="Ana0_checkedBox" Click="Click_CheckBox_Ana0" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana0_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana0" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana1_checkedBox" Click="Click_CheckBox_Ana1" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana1_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana1" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana2_checkedBox" Click="Click_CheckBox_Ana2" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana2_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana2" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana3_checkedBox" Click="Click_CheckBox_Ana3" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana3_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana3" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana4_checkedBox" Click="Click_CheckBox_Ana4" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana4_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana4" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana5_checkedBox" Click="Click_CheckBox_Ana5" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana5_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana5" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana6_checkedBox" Click="Click_CheckBox_Ana6" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana6_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana6" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana7_checkedBox" Click="Click_CheckBox_Ana7" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana7_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana7" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana8_checkedBox" Click="Click_CheckBox_Ana8" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana8_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana8" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana9_checkedBox" Click="Click_CheckBox_Ana9" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana9_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana9" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana10_checkedBox" Click="Click_CheckBox_Ana10" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana10_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana10" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana11_checkedBox" Click="Click_CheckBox_Ana11" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana11_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana11" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana12_checkedBox" Click="Click_CheckBox_Ana12" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana12_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana12" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana13_checkedBox" Click="Click_CheckBox_Ana13" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana13_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana13" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana14_checkedBox" Click="Click_CheckBox_Ana14" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana14_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana14" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="Ana15_checkedBox" Click="Click_CheckBox_Ana15" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=Ana15_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_Ana15" />
+                                    </CheckBox>
+                                </StackPanel>
+                            </TreeViewItem>
+                        </StackPanel>
+                    </TreeView>
+
+                    <TreeView>
+                        <StackPanel >
+                            <TreeViewItem Header="ALL PWM OUT" Padding="0,0,0,0" >
+                                <StackPanel>
+                                    <CheckBox x:Name="PWM0_checkedBox" Click="Click_CheckBox_PWM0" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=PWM0_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_PWM0" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="PWM1_checkedBox" Click="Click_CheckBox_PWM1" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=PWM1_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_PWM1" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="PWM2_checkedBox" Click="Click_CheckBox_PWM2" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=PWM2_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_PWM2" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="PWM3_checkedBox" Click="Click_CheckBox_PWM3" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=PWM3_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_PWM3" />
+                                    </CheckBox>
+                                </StackPanel>
+                            </TreeViewItem>
+                        </StackPanel>
+                    </TreeView>
+
+                    <TreeView>
+                        <StackPanel >
+                            <TreeViewItem Header="ALL AC OUT" Padding="0,0,0,0" >
+                                <StackPanel>
+                                    <CheckBox x:Name="AC0_checkedBox" Click="Click_CheckBox_AC0" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=AC0_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_AC0" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="AC1_checkedBox" Click="Click_CheckBox_AC1" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=AC1_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_AC1" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="AC2_checkedBox" Click="Click_CheckBox_AC2" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=AC2_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_AC2" />
+                                    </CheckBox>
+                                    <CheckBox x:Name="AC3_checkedBox" Click="Click_CheckBox_AC3" IsChecked="True" >
+                                        <TextBlock Text="{Binding ElementName=AC3_Name,Path=Text}" Padding="0,0,0,0" MouseUp="Click_CheckBox_AC3" />
+                                    </CheckBox>
+                                </StackPanel>
+                            </TreeViewItem>
+                        </StackPanel>
+                    </TreeView>
+
+                </ComboBox>
+            </Canvas>
+        </Grid>
+
+
+        <Grid Margin="0,70,0,60">
+            <ScrollViewer>
+                <WrapPanel Name="AllComponents" Orientation="Vertical" Margin="10,10,10,10" >
+
+                    <WrapPanel>
+                        <TextBlock Text="DIGITAL CONTROL" Style="{StaticResource GroupName}" />
+                    </WrapPanel>
+                    <WrapPanel x:Name="Digital" Orientation="Horizontal" Margin="10,0,10,10" >
+                        <!--Background="#FFE5EEF1"-->
+
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi0" MouseRightButtonUp="Digi0_MouseRightButtonUp"  >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi0" >
+                                <TextBlock x:Name="Digi0_Name" Text="DIGITAL OUT 0" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi0" Toggled="Digi0_Toggle" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi1" MouseRightButtonUp="Digi1_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi1" >
+                                <TextBlock x:Name="Digi1_Name" Text="DIGITAL OUT 1" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi1" Toggled="Digi1_Toggle" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi2" MouseRightButtonUp="Digi2_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi2" >
+                                <TextBlock x:Name="Digi2_Name" Text="DIGITAL OUT 2" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi2" Toggled="Digi2_Toggle" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi3" MouseRightButtonUp="Digi3_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi3" >
+                                <TextBlock x:Name="Digi3_Name" Text="DIGITAL OUT 3" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi3" Toggled="Digi3_Toggle"/>
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi4" MouseRightButtonUp="Digi4_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi4" >
+                                <TextBlock x:Name="Digi4_Name" Text="DIGITAL OUT 4" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi4" Toggled="Digi4_Toggle"/>
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi5" MouseRightButtonUp="Digi5_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi5" >
+                                <TextBlock x:Name="Digi5_Name" Text="DIGITAL OUT 5" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi5" Toggled="Digi5_Toggle"/>
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi6" MouseRightButtonUp="Digi6_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi6" >
+                                <TextBlock x:Name="Digi6_Name" Text="DIGITAL OUT 6" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi6" Toggled="Digi6_Toggle"/>
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi7" MouseRightButtonUp="Digi7_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi7" >
+                                <TextBlock x:Name="Digi7_Name" Text="DIGITAL OUT 7" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi7" Toggled="Digi7_Toggle"/>
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi8" MouseRightButtonUp="Digi8_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi8" >
+                                <TextBlock x:Name="Digi8_Name" Text="DIGITAL OUT 8" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi8" Toggled="Digi8_Toggle" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi9" MouseRightButtonUp="Digi9_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi9" >
+                                <TextBlock x:Name="Digi9_Name" Text="DIGITAL OUT 9" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi9" Toggled="Digi9_Toggle"/>
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi10" MouseRightButtonUp="Digi10_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi10" >
+                                <TextBlock x:Name="Digi10_Name" Text="DIGITAL OUT 10" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi10" Toggled="Digi10_Toggle"/>
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi11" MouseRightButtonUp="Digi11_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi11" >
+                                <TextBlock x:Name="Digi11_Name" Text="DIGITAL OUT 11" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi11" Toggled="Digi11_Toggle" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi12" MouseRightButtonUp="Digi12_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi12" >
+                                <TextBlock x:Name="Digi12_Name" Text="DIGITAL OUT 12" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi12" Toggled="Digi12_Toggle"/>
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi13" MouseRightButtonUp="Digi13_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi13" >
+                                <TextBlock x:Name="Digi13_Name" Text="DIGITAL OUT 13" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi13" Toggled="Digi13_Toggle"/>
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi14" MouseRightButtonUp="Digi14_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi14" >
+                                <TextBlock x:Name="Digi14_Name" Text="DIGITAL OUT 14" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi14" Toggled="Digi14_Toggle" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Digi15" MouseRightButtonUp="Digi15_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Digital}" x:Name="Canvas_Digi15" >
+                                <TextBlock x:Name="Digi15_Name" Text="DIGITAL OUT 15" Style="{StaticResource TextBlock_ComponentName}"></TextBlock>
+                                <mah:ToggleSwitch Style="{StaticResource Toggle_Digital}" x:Name="Digi15" Toggled="Digi15_Toggle"/>
+                            </Canvas>
+                        </Border>
+
+                    </WrapPanel>
+
+
+                    <WrapPanel>
+                        <TextBlock Text="ANALOG CONTROL" Style="{StaticResource GroupName}"/>
+                    </WrapPanel>
+
+                    <WrapPanel Name="Analog" Orientation="Horizontal" Margin="10,0,10,10" >
+                        <!--Background="#FFE5EEF1"-->
+
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana0" MouseRightButtonUp="Ana0_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}">
+                                <TextBlock x:Name="Ana0_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 0" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog0" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                         materialDesign:TextFieldAssist.SuffixText = "{Binding AnaUnitTypes0}"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana0_lostFocus" KeyDown="Ana0_KeyDown" />
+                                <Button Content="-" Name="Ana0_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana0_minus_Click" />
+                                <Button Content="+" Name="Ana0_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana0_plus_Click" />
+                            </Canvas>
+                        </Border>
+
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana1"  MouseRightButtonUp="Ana1_MouseRightButtonUp">
+                            <Canvas Style="{StaticResource Canvas_Analog}">
+                                <TextBlock x:Name="Ana1_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 1" />
+                                <!--<Button Style="{StaticResource Numberical_up_dow_custom_Rms}" Click="Button_Click_1"></Button>-->
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog1" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                         materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes1}"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana1_lostFocus" KeyDown="Ana1_KeyDown" />
+                                <Button Content="-" Name="Ana1_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana1_minus_Click" />
+                                <Button Content="+" Name="Ana1_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana1_plus_Click" />
+                            </Canvas>
+                        </Border>
+
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana2" MouseRightButtonUp="Ana2_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana2_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 2" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog2" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                         materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes2}"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana2_lostFocus" KeyDown="Ana2_KeyDown" />
+                                <Button Content="-" Name="Ana2_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana2_minus_Click" />
+                                <Button Content="+" Name="Ana2_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana2_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana3" MouseRightButtonUp="Ana3_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana3_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 3" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog3" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                         materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes3}"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana3_lostFocus" KeyDown="Ana3_KeyDown" />
+                                <Button Content="-" Name="Ana3_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana3_minus_Click" />
+                                <Button Content="+" Name="Ana3_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana3_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana4" MouseRightButtonUp="Ana4_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana4_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 4" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog4" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                         materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes4}"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana4_lostFocus" KeyDown="Ana4_KeyDown" />
+                                <Button Content="-" Name="Ana4_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana4_minus_Click" />
+                                <Button Content="+" Name="Ana4_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana4_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana5" MouseRightButtonUp="Ana5_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana5_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 5" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog5" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                         materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes5}"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana5_lostFocus" KeyDown="Ana5_KeyDown" />
+                                <Button Content="-" Name="Ana5_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana5_minus_Click" />
+                                <Button Content="+" Name="Ana5_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana5_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana6" MouseRightButtonUp="Ana6_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana6_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 6" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog6" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                         materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes6}"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana6_lostFocus" KeyDown="Ana6_KeyDown" />
+                                <Button Content="-" Name="Ana6_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana6_minus_Click" />
+                                <Button Content="+" Name="Ana6_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana6_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana7" MouseRightButtonUp="Ana7_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana7_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 7" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog7" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                     BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                     materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes7}"
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana7_lostFocus" KeyDown="Ana7_KeyDown" />
+                                <Button Content="-" Name="Ana7_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana7_minus_Click" />
+                                <Button Content="+" Name="Ana7_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana7_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana8" MouseRightButtonUp="Ana8_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana8_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 8" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog8" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                     BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                     materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes8}"
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana8_lostFocus" KeyDown="Ana8_KeyDown" />
+                                <Button Content="-" Name="Ana8_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana8_minus_Click" />
+                                <Button Content="+" Name="Ana8_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana8_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana9" MouseRightButtonUp="Ana9_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana9_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 9" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog9" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                     BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                     materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes9}"
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana9_lostFocus" KeyDown="Ana9_KeyDown" />
+                                <Button Content="-" Name="Ana9_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana9_minus_Click" />
+                                <Button Content="+" Name="Ana9_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana9_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana10" MouseRightButtonUp="Ana10_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana10_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 10" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog10" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                     BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                     materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes10}"
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana10_lostFocus" KeyDown="Ana10_KeyDown" />
+                                <Button Content="-" Name="Ana10_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana10_minus_Click" />
+                                <Button Content="+" Name="Ana10_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana10_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana11" MouseRightButtonUp="Ana11_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana11_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 11" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog11" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                     BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                     materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes11}"
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana11_lostFocus" KeyDown="Ana11_KeyDown" />
+                                <Button Content="-" Name="Ana11_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana11_minus_Click" />
+                                <Button Content="+" Name="Ana11_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana11_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana12" MouseRightButtonUp="Ana12_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana12_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 12" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog12" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                     BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                     materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes12}"
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana12_lostFocus" KeyDown="Ana12_KeyDown" />
+                                <Button Content="-" Name="Ana12_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana12_minus_Click" />
+                                <Button Content="+" Name="Ana12_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana12_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana13" MouseRightButtonUp="Ana13_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana13_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 13" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog13" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                     BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                     materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes13}"
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana13_lostFocus" KeyDown="Ana13_KeyDown" />
+                                <Button Content="-" Name="Ana13_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana13_minus_Click" />
+                                <Button Content="+" Name="Ana13_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana13_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana14" MouseRightButtonUp="Ana14_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana14_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 14" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog14" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                     BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                     materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes14}"
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana14_lostFocus" KeyDown="Ana14_KeyDown" />
+                                <Button Content="-" Name="Ana14_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana14_minus_Click" />
+                                <Button Content="+" Name="Ana14_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana14_plus_Click" />
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_Ana15" MouseRightButtonUp="Ana15_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource Canvas_Analog}" >
+                                <TextBlock x:Name="Ana15_Name" Style="{StaticResource TextBlock_ComponentName}" Text="ANALOG OUT 15" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="Analog15" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                     BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Ana_Textbox_PreviewTextInput"
+                                     materialDesign:TextFieldAssist.SuffixText ="{Binding AnaUnitTypes15}"
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="Ana15_lostFocus" KeyDown="Ana15_KeyDown" />
+                                <Button Content="-" Name="Ana15_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana15_minus_Click" />
+                                <Button Content="+" Name="Ana15_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                    FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}" Click="Ana15_plus_Click" />
+                            </Canvas>
+                        </Border>
+                    </WrapPanel>
+
+
+                    <WrapPanel>
+                        <TextBlock Text="PWM CONTROL" Style="{StaticResource GroupName}"/>
+                    </WrapPanel>
+                    <WrapPanel Name="PWM" Orientation="Horizontal" Margin="10,0,10,10">
+                        <!--Background="#FFE5EEF1"-->
+                        <Border Style="{StaticResource border}" x:Name="Border_PWM0" MouseRightButtonUp="PWM0_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource canvasPWM}">
+                                <TextBlock Name="PWM0_Name" Style="{StaticResource TextBlock_ComponentName}" Text="PWM OUT 0"></TextBlock>
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="PWM0_Duty" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Duty_RMS_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Duty" materialDesign:TextFieldAssist.SuffixText ="%"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="PWM0_Duty_lostFocus" KeyDown="PWM0_Duty_KeyDown" />
+                                <Button Content="-" Name="PWM0_Duty_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM0_Duty_minus_Click" />
+                                <Button Content="+" Name="PWM0_Duty_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM0_Duty_plus_Click" />
+
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="150,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="PWM0_Freq" Text="0" Width="70" Height="35" Margin="180,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Freq_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Frequency" materialDesign:TextFieldAssist.SuffixText ="Hz"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="PWM0_Freq_lostFocus" KeyDown="PWM0_Freq_KeyDown" />
+                                <Button Content="-" Name="PWM0_Freq_minus" Height="35" Width="30" Margin="150,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM0_Freq_minus_Click" />
+                                <Button Content="+" Name="PWM0_Freq_plus" Height="35" Width="30" Margin="250,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM0_Freq_plus_Click" />
+
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_PWM1" MouseRightButtonUp="PWM1_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource canvasPWM}">
+                                <TextBlock Name="PWM1_Name" Style="{StaticResource TextBlock_ComponentName}" Text="PWM OUT 1" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="PWM1_Duty" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Duty_RMS_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Duty" materialDesign:TextFieldAssist.SuffixText ="%"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="PWM1_Duty_lostFocus" KeyDown="PWM1_Duty_KeyDown" />
+                                <Button Content="-" Name="PWM1_Duty_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM1_Duty_minus_Click" />
+                                <Button Content="+" Name="PWM1_Duty_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM1_Duty_plus_Click" />
+
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="150,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="PWM1_Freq" Text="0" Width="70" Height="35" Margin="180,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Freq_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Frequency" materialDesign:TextFieldAssist.SuffixText ="Hz"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="PWM1_Freq_lostFocus" KeyDown="PWM1_Freq_KeyDown" />
+                                <Button Content="-" Name="PWM1_Freq_minus" Height="35" Width="30" Margin="150,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM1_Freq_minus_Click" />
+                                <Button Content="+" Name="PWM1_Freq_plus" Height="35" Width="30" Margin="250,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM1_Freq_plus_Click" />
+
+                            </Canvas>
+                        </Border>
+
+                        <Border Style="{StaticResource border}" x:Name="Border_PWM2" MouseRightButtonUp="PWM2_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource canvasPWM}">
+                                <TextBlock Name="PWM2_Name" Style="{StaticResource TextBlock_ComponentName}" Text="PWM OUT 2"></TextBlock>
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="PWM2_Duty" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Duty_RMS_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Duty" materialDesign:TextFieldAssist.SuffixText ="%"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="PWM2_Duty_lostFocus" KeyDown="PWM2_Duty_KeyDown" />
+                                <Button Content="-" Name="PWM2_Duty_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM2_Duty_minus_Click" />
+                                <Button Content="+" Name="PWM2_Duty_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM2_Duty_plus_Click" />
+
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="150,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="PWM2_Freq" Text="0" Width="70" Height="35" Margin="180,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Freq_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Frequency" materialDesign:TextFieldAssist.SuffixText ="Hz"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="PWM2_Freq_lostFocus" KeyDown="PWM2_Freq_KeyDown" />
+                                <Button Content="-" Name="PWM2_Freq_minus" Height="35" Width="30" Margin="150,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM2_Freq_minus_Click" />
+                                <Button Content="+" Name="PWM2_Freq_plus" Height="35" Width="30" Margin="250,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM2_Freq_plus_Click" />
+
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_PWM3" MouseRightButtonUp="PWM3_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource canvasPWM}">
+                                <TextBlock Name="PWM3_Name" Style="{StaticResource TextBlock_ComponentName}" Text="PWM OUT 3"></TextBlock>
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="PWM3_Duty" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Duty_RMS_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Duty" materialDesign:TextFieldAssist.SuffixText ="%"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="PWM3_Duty_lostFocus" KeyDown="PWM3_Duty_KeyDown" />
+                                <Button Content="-" Name="PWM3_Duty_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM3_Duty_minus_Click" />
+                                <Button Content="+" Name="PWM3_Duty_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM3_Duty_plus_Click" />
+
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="150,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="PWM3_Freq" Text="0" Width="70" Height="35" Margin="180,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Freq_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Frequency" materialDesign:TextFieldAssist.SuffixText ="Hz"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="PWM3_Freq_lostFocus" KeyDown="PWM3_Freq_KeyDown" />
+                                <Button Content="-" Name="PWM3_Freq_minus" Height="35" Width="30" Margin="150,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM3_Freq_minus_Click" />
+                                <Button Content="+" Name="PWM3_Freq_plus" Height="35" Width="30" Margin="250,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="PWM3_Freq_plus_Click" />
+                            </Canvas>
+                        </Border>
+                    </WrapPanel>
+
+
+                    <WrapPanel>
+                        <TextBlock Text="AC CONTROL" Style="{StaticResource GroupName}"/>
+                    </WrapPanel>
+                    <WrapPanel Name="AC" Orientation="Horizontal" Margin="10,0,10,10" >
+                        <!--Background="#FFE5EEF1"-->
+                        <Border Style="{StaticResource border}" x:Name="Border_AC0" MouseRightButtonUp="AC0_MouseRightButtonUp" >
+                            <Canvas Style="{StaticResource canvasAC}" AutomationProperties.Name="Canvas_AC0">
+                                <TextBlock Name="AC0_Name" Style="{StaticResource TextBlock_ComponentName}" Text="AC OUT 0"></TextBlock>
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="AC0_Rms" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Duty_RMS_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Voltage Rms" materialDesign:TextFieldAssist.SuffixText ="V"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="AC0_RMS_lostFocus" KeyDown="AC0_RMS_KeyDown" />
+                                <Button Content="-" Name="AC0_Rms_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC0_RMS_minus_Click" />
+                                <Button Content="+" Name="AC0_Rms_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC0_RMS_plus_Click" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="150,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="AC0_Freq" Text="0" Width="70" Height="35" Margin="180,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Freq_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Frequency" materialDesign:TextFieldAssist.SuffixText ="Hz"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="AC0_Freq_lostFocus" KeyDown="AC0_Freq_KeyDown" />
+                                <Button Content="-" Name="AC0_Freq_minus" Height="35" Width="30" Margin="150,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC0_Freq_minus_Click" />
+                                <Button Content="+" Name="AC0_Freq_plus" Height="35" Width="30" Margin="250,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC0_Freq_plus_Click" />
+
+                                <Button x:Name="StartPSButton"
+                                        Width="130" Height="35" Content="Start Phase Shift" Margin="10,80" Padding="3,4,4,4"
+                                        IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                        Style="{StaticResource MaterialDesignPaperLightButton}" BorderBrush="#FFC9E1F3" 
+                                        ToolTip="Start phase shift at the rest channel AC out" Click="PhaseShift_Button_Click" />
+                                <TextBox Name="AC0_PhaseShift" Text="0" Width="0" Height="0" Margin="0,0" VerticalAlignment="Center" Background="White" Visibility="Hidden" ></TextBox>
+                                <ComboBox x:Name="AC0_TypeWave" Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                    Margin="150,80" Width="130" Height="35"
+                                    materialDesign:HintAssist.Hint="AC type wave" SelectedIndex="0" 
+                                    HorizontalAlignment="Left" Padding="3,3,3,3" SelectionChanged="AC0_TypeWave_SelectChange" SelectedValuePath="1" >
+                                    <ComboBoxItem Content="Sine-Wave"/>
+                                    <ComboBoxItem Content="Full-Wave"/>
+                                    <ComboBoxItem Content="Half-Wave"/>
+                                </ComboBox>
+                            </Canvas>
+
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_AC1" MouseRightButtonUp="AC1_MouseRightButtonUp"  >
+                            <Canvas Style="{StaticResource canvasAC}">
+                                <TextBlock Name="AC1_Name" Style="{StaticResource TextBlock_ComponentName}" Text="AC OUT 1" ></TextBlock>
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="AC1_Rms" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Duty_RMS_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Voltage Rms" materialDesign:TextFieldAssist.SuffixText ="V"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="AC1_RMS_lostFocus" KeyDown="AC1_RMS_KeyDown" />
+                                <Button Content="-" Name="AC1_Rms_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC1_RMS_minus_Click" />
+                                <Button Content="+" Name="AC1_Rms_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC1_RMS_plus_Click" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="150,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="AC1_Freq" Text="0" Width="70" Height="35" Margin="180,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Freq_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Frequency" materialDesign:TextFieldAssist.SuffixText ="Hz"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="AC1_Freq_lostFocus" KeyDown="AC1_Freq_KeyDown" />
+                                <Button Content="-" Name="AC1_Freq_minus" Height="35" Width="30" Margin="150,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC1_Freq_minus_Click" />
+                                <Button Content="+" Name="AC1_Freq_plus" Height="35" Width="30" Margin="250,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC1_Freq_plus_Click" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,80" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="AC1_PhaseShift" Text="0" Width="70" Height="35" Margin="40,80" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="PS_Textbox_PreviewTextInput" 
+                                         materialDesign:HintAssist.Hint="Phase shift" materialDesign:TextFieldAssist.SuffixText ="°"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="AC1_PhaseShift_lostFocus" KeyDown="AC1_PhaseShift_KeyDown" />
+                                <Button Content="-" Name="AC1_PhaseShift_minus" Height="35" Width="30" Margin="10,80" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC1_PhaseShift_minus_Click" />
+                                <Button Content="+" Name="AC1_PhaseShift_plus" Height="35" Width="30" Margin="110,80" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC1_PhaseShift_plus_Click" />
+
+                                <ComboBox x:Name="AC1_TypeWave" Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                    Margin="150,80" Width="130" Height="35"
+                                    materialDesign:HintAssist.Hint="AC type wave" SelectedIndex="0" 
+                                    HorizontalAlignment="Left" Padding="3,3,3,3" SelectionChanged="AC1_TypeWave_SelectChange" >
+                                    <ComboBoxItem Content="Sine-Wave"/>
+                                    <ComboBoxItem Content="Full-Wave"/>
+                                    <ComboBoxItem Content="Half-Wave"/>
+                                </ComboBox>
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_AC2" MouseRightButtonUp="AC2_MouseRightButtonUp"  >
+                            <Canvas Style="{StaticResource canvasAC}">
+                                <TextBlock Name="AC2_Name" Style="{StaticResource TextBlock_ComponentName}" Text="AC OUT 2"/>
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="AC2_Rms" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Duty_RMS_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Voltage Rms" materialDesign:TextFieldAssist.SuffixText ="V"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="AC2_RMS_lostFocus" KeyDown="AC2_RMS_KeyDown" />
+                                <Button Content="-" Name="AC2_Rms_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC2_RMS_minus_Click" />
+                                <Button Content="+" Name="AC2_Rms_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC2_RMS_plus_Click" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="150,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="AC2_Freq" Text="0" Width="70" Height="35" Margin="180,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Freq_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Frequency" materialDesign:TextFieldAssist.SuffixText ="Hz"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="AC2_Freq_lostFocus" KeyDown="AC2_Freq_KeyDown" />
+                                <Button Content="-" Name="AC2_Freq_minus" Height="35" Width="30" Margin="150,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC2_Freq_minus_Click" />
+                                <Button Content="+" Name="AC2_Freq_plus" Height="35" Width="30" Margin="250,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC2_Freq_plus_Click" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,80" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="AC2_PhaseShift" Text="0" Width="70" Height="35" Margin="40,80" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="PS_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Phase shift" materialDesign:TextFieldAssist.SuffixText ="°"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="AC2_PhaseShift_lostFocus" KeyDown="AC2_PhaseShift_KeyDown" />
+                                <Button Content="-" Name="AC2_PhaseShift_minus" Height="35" Width="30" Margin="10,80" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC2_PhaseShift_minus_Click" />
+                                <Button Content="+" Name="AC2_PhaseShift_plus" Height="35" Width="30" Margin="110,80" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC2_PhaseShift_plus_Click" />
+
+                                <ComboBox x:Name="AC2_TypeWave" Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                        Margin="150,80" Width="130" Height="35"
+                                        materialDesign:HintAssist.Hint="AC type wave" SelectedIndex="0" 
+                                        HorizontalAlignment="Left" Padding="3,3,3,3" SelectionChanged="AC2_TypeWave_SelectChange" >
+                                    <ComboBoxItem Content="Sine-Wave"/>
+                                    <ComboBoxItem Content="Full-Wave"/>
+                                    <ComboBoxItem Content="Half-Wave"/>
+                                </ComboBox>
+                            </Canvas>
+                        </Border>
+                        <Border Style="{StaticResource border}" x:Name="Border_AC3" MouseRightButtonUp="AC3_MouseRightButtonUp"  >
+                            <Canvas Style="{StaticResource canvasAC}">
+                                <TextBlock Name="AC3_Name" Style="{StaticResource TextBlock_ComponentName}" Text="AC OUT 3"></TextBlock>
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="AC3_Rms" Text="0" Width="70" Height="35" Margin="40,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Duty_RMS_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Voltage Rms" materialDesign:TextFieldAssist.SuffixText ="V"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="AC3_RMS_lostFocus" KeyDown="AC3_RMS_KeyDown" />
+                                <Button Content="-" Name="AC3_Rms_minus" Height="35" Width="30" Margin="10,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC3_RMS_minus_Click" />
+                                <Button Content="+" Name="AC3_Rms_plus" Height="35" Width="30" Margin="110,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC3_RMS_plus_Click" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="150,25" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="AC3_Freq" Text="0" Width="70" Height="35" Margin="180,25" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="Freq_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Frequency" materialDesign:TextFieldAssist.SuffixText ="Hz"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="AC3_Freq_lostFocus" KeyDown="AC3_Freq_KeyDown" />
+                                <Button Content="-" Name="AC3_Freq_minus" Height="35" Width="30" Margin="150,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC3_Freq_minus_Click" />
+                                <Button Content="+" Name="AC3_Freq_plus" Height="35" Width="30" Margin="250,25" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC3_Freq_plus_Click" />
+
+                                <Rectangle Fill="White" Height="35" Width="130" Margin="10,80" RadiusY="12" RadiusX="12" />
+                                <TextBox Name="AC3_PhaseShift" Text="0" Width="70" Height="35" Margin="40,80" VerticalAlignment="Center" Background="White" 
+                                         BorderBrush="{x:Null}" FontSize="13" TextAlignment="Center" Padding="0,0,0,0" PreviewTextInput="PS_Textbox_PreviewTextInput"
+                                         materialDesign:HintAssist.Hint="Phase shift" materialDesign:TextFieldAssist.SuffixText ="°"
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}" LostFocus="AC3_PhaseShift_lostFocus" KeyDown="AC3_PhaseShift_KeyDown" />
+                                <Button Content="-" Name="AC3_PhaseShift_minus" Height="35" Width="30" Margin="10,80" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC3_PhaseShift_minus_Click" />
+                                <Button Content="+" Name="AC3_PhaseShift_plus" Height="35" Width="30" Margin="110,80" Foreground="#FF1D2FC5" Background="{x:Null}" 
+                                        FontSize="20" FontFamily="Segoe UI" Padding="0,-5,0,0" BorderBrush="{x:Null}" FontWeight="Bold" 
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" Click="AC3_PhaseShift_plus_Click" />
+
+                                <ComboBox x:Name="AC3_TypeWave" Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                    Margin="150,80" Width="130" Height="35"
+                                    materialDesign:HintAssist.Hint="AC type wave" SelectedIndex="0" 
+                                    HorizontalAlignment="Left" Padding="3,3,3,3" SelectionChanged="AC3_TypeWave_SelectChange" >
+                                    <ComboBoxItem Content="Sine-Wave"/>
+                                    <ComboBoxItem Content="Full-Wave"/>
+                                    <ComboBoxItem Content="Half-Wave"/>
+                                </ComboBox>
+                            </Canvas>
+                        </Border>
+
+                    </WrapPanel>
+                </WrapPanel>
+            </ScrollViewer>
+
+        </Grid>
+        <Grid VerticalAlignment="Bottom" >
+            <Canvas Height="60" >
+                <Button
+                    Width="90" Height="35"
+                    Content="Apply" Canvas.Right = "40" Canvas.Top ="10" Click="Apply_Button_Click" 
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Style="{StaticResource MaterialDesignPaperLightButton}"
+                    ToolTip="Apply to save configuration" BorderBrush="#FFC9E1F3" />
+            </Canvas>
+        </Grid>
+    </Grid>
+</Window>

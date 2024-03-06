@@ -1,0 +1,685 @@
+﻿using System.IO;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using System.Windows;
+using WPFiftool.ViewModels.LogViewModel;
+using System.Windows.Media;
+using WPFiftool.ViewModels.CANViewModel;
+using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
+using System.IO.Ports;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+using WPFiftool.Driver;
+using System.Windows.Threading;
+using System.Collections.ObjectModel;
+using static WPFiftool.Models.Common_string;
+using WPFiftool.ViewModels.ConfigfileViewModel;
+using WPFiftool.Models;
+using System;
+using WPFiftool.Models.CAN;
+using DocumentFormat.OpenXml.InkML;
+using System.Windows.Forms;
+
+namespace WPFiftool.ViewModels.SignalMonitor
+{
+    public class InputMonitor
+    {
+        //private CANRawRXViewModel _CANRawRXViewModel = new CANRawRXViewModel();
+        public InputMonitor()
+        {
+            CANRawRXViewModel.EventConvetedData += handleEventConvertData;
+            Read_file.EventChangedDefault += EventChangedDefaultHandle;
+        }
+        private float ACInputFreqFactor = 10.0f;
+
+        private float ACInputRMSFactor = 100.0f;
+        private float ACInputPeakHFactor = 100.0f;
+        private float ACInputPeakLFactor = 100.0f;
+
+
+        public static ObservableCollection<Signal_Title> SignalMonitorDataSave { get; set; } = new ObservableCollection<Signal_Title>(); //contain all data of excel
+        public static ObservableCollection<Signal_Title> SignalMonitorDataView = new ObservableCollection<Signal_Title>();  //contain just only data show in the datagrid
+        public static ObservableCollection<Signal_Title> SignalMonitorDataSaveExcel = new ObservableCollection<Signal_Title>();  //contain just only data show in the datagrid
+
+
+
+        private const UInt16 digitalInputOffset = 0;        //16 signals
+        private const UInt16 analogInputOffset = 16;        //16 signals
+        private const UInt16 PWMInputOffset = 32;           //8 signals
+        private const UInt16 ACInputOffset = 40;            //8 signals
+
+
+
+        private void handleEventConvertData(object sender, EventArgs e)
+        {
+            if (e == CANRawRXViewModel.DigitalInputEvent)
+            {
+                UpdateDigitalInputRawData();
+                UpdateDigitalInputPHYData();
+            }
+            else if (e == CANRawRXViewModel.AnalogInputMXP0Event)
+            {
+                UpdateAnalogInputRawDataMXP0();
+                UpdateAnalogInputPHYDataMXP0();
+            }
+
+            else if (e == CANRawRXViewModel.AnalogInputMXP1Event)
+            {
+                UpdateAnalogInputRawDataMXP1();
+                UpdateAnalogInputPHYDataMXP1();
+            }
+
+            else if (e == CANRawRXViewModel.AnalogInputMXP2Event)
+            {
+                UpdateAnalogInputRawDataMXP2();
+                UpdateAnalogInputPHYDataMXP2();
+            }
+            else if (e == CANRawRXViewModel.AnalogInputMXP3Event)
+            {
+                UpdateAnalogInputRawDataMXP3();
+                UpdateAnalogInputPHYDataMXP3();
+            }
+            else if (e == CANRawRXViewModel.ACInputMXP0Event)
+            {
+                UpdateACInputRawDataMXP0();
+                UpdateACInputPHYDataMXP0();
+            }
+            else if (e == CANRawRXViewModel.ACInputMXP1Event)
+            {
+                UpdateACInputRawDataMXP1();
+                UpdateACInputPHYDataMXP1();
+            }
+            else if (e == CANRawRXViewModel.ACInputMXP2Event)
+            {
+                UpdateACInputRawDataMXP2();
+                UpdateACInputPHYDataMXP2();
+
+            }
+            else if (e == CANRawRXViewModel.ACInputMXP3Event)
+            {
+                UpdateACInputRawDataMXP3();
+                UpdateACInputPHYDataMXP3();
+
+            }
+        }
+
+
+
+        private void UpdateDigitalInputPHYData()
+        {
+
+            for (UInt16 i = 0; i < 16; i++)
+            {
+                //need to change: do not use for loop
+
+                if (CANRXRawData._DigitalInputRawData.digitalData[i] != 0)
+                {
+                    SignalMonitorDataSave[i + digitalInputOffset].Value = SignalMonitorDataSave[i + digitalInputOffset].MaxLabel;
+
+                }
+                else
+                {
+                    SignalMonitorDataSave[i + digitalInputOffset].Value = SignalMonitorDataSave[i + digitalInputOffset].MinLabel;
+                }
+            }
+        }
+
+
+        private void UpdateAnalogInputPHYDataMXP0()
+        {
+            for (UInt16 i = 0; i < 5; i++)
+            {
+                //need to change: do not use for loop
+
+                ResolutionData.CalculateAnalogInputResolution(i, float.Parse(SignalMonitorDataSave[i + analogInputOffset].MaxLabel), float.Parse(SignalMonitorDataSave[i + analogInputOffset].MinLabel));
+                SignalMonitorDataSave[i + analogInputOffset].Value =
+                (
+                    float.Parse(SignalMonitorDataSave[i + analogInputOffset].RawValue) / ResolutionData.AnalogInputResolution[i]
+                    + float.Parse(SignalMonitorDataSave[i + analogInputOffset].Offset)
+                ).ToString();
+            }
+        }
+
+
+        private void UpdateAnalogInputPHYDataMXP1()
+        {
+            for (UInt16 i = 5; i < 10; i++)
+            {
+                //need to change: do not use for loop
+
+                ResolutionData.CalculateAnalogInputResolution(i, float.Parse(SignalMonitorDataSave[i + analogInputOffset].MaxLabel), float.Parse(SignalMonitorDataSave[i + analogInputOffset].MinLabel));
+                SignalMonitorDataSave[i + analogInputOffset].Value =
+                (
+                    float.Parse(SignalMonitorDataSave[i + analogInputOffset].RawValue) / ResolutionData.AnalogInputResolution[i]
+                    + float.Parse(SignalMonitorDataSave[i + analogInputOffset].Offset)
+                ).ToString();
+            }
+        }
+        private void UpdateAnalogInputPHYDataMXP2()
+        {
+
+            //need to change: do not use for loop
+            for (UInt16 i = 10; i < 15; i++)
+            {
+                ResolutionData.CalculateAnalogInputResolution(i, float.Parse(SignalMonitorDataSave[i + analogInputOffset].MaxLabel), float.Parse(SignalMonitorDataSave[i + analogInputOffset].MinLabel));
+                SignalMonitorDataSave[i + analogInputOffset].Value =
+                (
+                    float.Parse(SignalMonitorDataSave[i + analogInputOffset].RawValue) / ResolutionData.AnalogInputResolution[i]
+                    + float.Parse(SignalMonitorDataSave[i + analogInputOffset].Offset)
+                ).ToString();
+            }
+        }
+
+        private void UpdateAnalogInputPHYDataMXP3()
+        {
+
+            ResolutionData.CalculateAnalogInputResolution(15, float.Parse(SignalMonitorDataSave[15 + analogInputOffset].MaxLabel), float.Parse(SignalMonitorDataSave[15 + analogInputOffset].MinLabel));
+            SignalMonitorDataSave[15 + analogInputOffset].Value =
+            (
+                float.Parse(SignalMonitorDataSave[15 + analogInputOffset].RawValue) / ResolutionData.AnalogInputResolution[15]
+                + float.Parse(SignalMonitorDataSave[15 + analogInputOffset].Offset)
+            ).ToString();
+        }
+
+        //void CalculateResolution
+
+
+
+
+
+
+        private void UpdateACInputPHYDataMXP0()
+        {
+            float MaxValueTemp;
+            float MinValueTemp;
+            float RawValueTemp;
+            float OffsetValueTemp;
+
+            //RMS VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[0 + ACInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[0 + ACInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.RMSVoltage[0] / ACInputRMSFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[0 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACRMSInputResolution(0, MaxValueTemp, MinValueTemp);
+            SignalMonitorDataSave[0 + ACInputOffset].Value = ((RawValueTemp / ResolutionData.ACInputRMSResolution[0]) + OffsetValueTemp).ToString();
+
+            //FREQ VALUE
+            RawValueTemp = CANRXRawData._ACInputRawData.frequency[0] / ACInputFreqFactor;
+            SignalMonitorDataSave[1 + ACInputOffset].Value = (RawValueTemp).ToString();
+
+            //PEAK L VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[2 + analogInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[2 + analogInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.PeakLowVoltage[0] / ACInputPeakLFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[2 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACPeakLInputResolution(0, MaxValueTemp, MinValueTemp);        //calcualte resolution
+
+            //add value to signal monitor
+            SignalMonitorDataSave[2 + ACInputOffset].Value = (-(RawValueTemp / ResolutionData.ACInputPeakLResolution[0] + OffsetValueTemp)).ToString();
+
+            //PEAK H VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[3 + analogInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[3 + analogInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.PeakHighVoltage[0] / ACInputPeakHFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[3 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACPeakHInputResolution(0, MaxValueTemp, MinValueTemp);        //calcualte resolution
+
+            //add value to signal monitor
+
+            SignalMonitorDataSave[3 + ACInputOffset].Value = (RawValueTemp / ResolutionData.ACInputPeakHResolution[0] + OffsetValueTemp).ToString();
+        }
+
+
+        private void UpdateACInputPHYDataMXP1()
+        {
+            float MaxValueTemp;
+            float MinValueTemp;
+            float RawValueTemp;
+            float OffsetValueTemp;
+
+            //RMS VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[4 + ACInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[4 + ACInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.RMSVoltage[1] / ACInputRMSFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[4 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACRMSInputResolution(1, MaxValueTemp, MinValueTemp);
+            SignalMonitorDataSave[4 + ACInputOffset].Value = ((RawValueTemp / ResolutionData.ACInputRMSResolution[1]) + OffsetValueTemp).ToString();
+
+            //FREQ VALUE
+            RawValueTemp = CANRXRawData._ACInputRawData.frequency[1] / ACInputFreqFactor;
+            SignalMonitorDataSave[5 + ACInputOffset].Value = (RawValueTemp).ToString();
+
+            //PEAK L VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[6 + analogInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[6 + analogInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.PeakLowVoltage[1] / ACInputPeakLFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[6 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACPeakLInputResolution(1, MaxValueTemp, MinValueTemp);        //calcualte resolution
+
+            //add value to signal monitor
+            SignalMonitorDataSave[6 + ACInputOffset].Value = (-(RawValueTemp / ResolutionData.ACInputPeakLResolution[1] + OffsetValueTemp)).ToString();
+
+            //PEAK H VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[7 + analogInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[7 + analogInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.PeakHighVoltage[1] / ACInputPeakHFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[7 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACPeakHInputResolution(1, MaxValueTemp, MinValueTemp);        //calcualte resolution
+
+            //add value to signal monitor
+
+            SignalMonitorDataSave[7 + ACInputOffset].Value = (RawValueTemp / ResolutionData.ACInputPeakHResolution[0] + OffsetValueTemp).ToString();
+        }
+
+        private void UpdateACInputPHYDataMXP2()
+        {
+            float MaxValueTemp;
+            float MinValueTemp;
+            float RawValueTemp;
+            float OffsetValueTemp;
+
+            //RMS VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[8 + ACInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[8 + ACInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.RMSVoltage[2] / ACInputRMSFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[8 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACRMSInputResolution(2, MaxValueTemp, MinValueTemp);
+            SignalMonitorDataSave[8 + ACInputOffset].Value = ((RawValueTemp / ResolutionData.ACInputRMSResolution[2]) + OffsetValueTemp).ToString();
+
+            //FREQ VALUE
+            RawValueTemp = CANRXRawData._ACInputRawData.frequency[2] / ACInputFreqFactor;
+            SignalMonitorDataSave[9 + ACInputOffset].Value = (RawValueTemp).ToString();
+
+            //PEAK L VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[10 + analogInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[10 + analogInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.PeakLowVoltage[2] / ACInputPeakLFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[10 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACPeakLInputResolution(2, MaxValueTemp, MinValueTemp);        //calcualte resolution
+
+            //add value to signal monitor
+            SignalMonitorDataSave[10 + ACInputOffset].Value = (-(RawValueTemp / ResolutionData.ACInputPeakLResolution[2] + OffsetValueTemp)).ToString();
+
+            //PEAK H VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[11 + analogInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[11 + analogInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.PeakHighVoltage[2] / ACInputPeakHFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[11 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACPeakHInputResolution(2, MaxValueTemp, MinValueTemp);        //calcualte resolution
+
+            //add value to signal monitor
+
+            SignalMonitorDataSave[11 + ACInputOffset].Value = (RawValueTemp / ResolutionData.ACInputPeakHResolution[2] + OffsetValueTemp).ToString();
+
+        }
+
+        private void UpdateACInputPHYDataMXP3()
+        {
+            float MaxValueTemp;
+            float MinValueTemp;
+            float RawValueTemp;
+            float OffsetValueTemp;
+
+            //RMS VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[12 + ACInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[12 + ACInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.RMSVoltage[3] / ACInputRMSFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[12 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACRMSInputResolution(3, MaxValueTemp, MinValueTemp);
+            SignalMonitorDataSave[12 + ACInputOffset].Value = ((RawValueTemp / ResolutionData.ACInputRMSResolution[3]) + OffsetValueTemp).ToString();
+
+            //FREQ VALUE
+            RawValueTemp = CANRXRawData._ACInputRawData.frequency[3] / ACInputFreqFactor;
+            SignalMonitorDataSave[13 + ACInputOffset].Value = (RawValueTemp).ToString();
+
+            //PEAK L VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[14 + analogInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[14 + analogInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.PeakLowVoltage[3] / ACInputPeakLFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[14 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACPeakLInputResolution(3, MaxValueTemp, MinValueTemp);        //calcualte resolution
+
+            //add value to signal monitor
+            SignalMonitorDataSave[14 + ACInputOffset].Value = (-(RawValueTemp / ResolutionData.ACInputPeakLResolution[3] + OffsetValueTemp)).ToString();
+
+            //PEAK H VALUE
+            MaxValueTemp = float.Parse(SignalMonitorDataSave[15 + analogInputOffset].MaxLabel);
+            MinValueTemp = float.Parse(SignalMonitorDataSave[15 + analogInputOffset].MinLabel);
+            RawValueTemp = CANRXRawData._ACInputRawData.PeakHighVoltage[3] / ACInputPeakHFactor;
+            OffsetValueTemp = float.Parse(SignalMonitorDataSave[15 + ACInputOffset].Offset);
+
+            ResolutionData.CalculateACPeakHInputResolution(3, MaxValueTemp, MinValueTemp);        //calcualte resolution
+
+            //add value to signal monitor
+
+            SignalMonitorDataSave[15 + ACInputOffset].Value = (RawValueTemp / ResolutionData.ACInputPeakHResolution[3] + OffsetValueTemp).ToString();
+        }
+
+
+
+
+        #region DIGITAL INPUT
+
+
+        private void UpdateDigitalInputRawData()
+        {
+            SignalMonitorDataSave[0 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[0]).ToString();
+            SignalMonitorDataSave[1 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[1]).ToString();
+            SignalMonitorDataSave[2 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[2]).ToString();
+            SignalMonitorDataSave[3 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[3]).ToString();
+            SignalMonitorDataSave[4 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[4]).ToString();
+            SignalMonitorDataSave[5 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[5]).ToString();
+            SignalMonitorDataSave[6 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[6]).ToString();
+            SignalMonitorDataSave[7 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[7]).ToString();
+            SignalMonitorDataSave[8 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[8]).ToString();
+            SignalMonitorDataSave[9 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[9]).ToString();
+            SignalMonitorDataSave[10 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[10]).ToString();
+            SignalMonitorDataSave[11 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[11]).ToString();
+            SignalMonitorDataSave[12 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[12]).ToString();
+            SignalMonitorDataSave[13 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[13]).ToString();
+            SignalMonitorDataSave[14 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[14]).ToString();
+            SignalMonitorDataSave[15 + digitalInputOffset].RawValue = (CANRXRawData._DigitalInputRawData.digitalData[15]).ToString();
+        }
+        #endregion
+
+        #region ANALOG INPUT
+        private void UpdateAnalogInputRawDataMXP0()
+        {
+            #region ANALOG INPUT CHANNEL IN MXP0
+            SignalMonitorDataSave[0 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[0]).ToString();
+            SignalMonitorDataSave[1 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[1]).ToString();
+            SignalMonitorDataSave[2 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[2]).ToString();
+            SignalMonitorDataSave[3 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[3]).ToString();
+            SignalMonitorDataSave[4 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[4]).ToString();
+            #endregion
+        }
+
+
+        private void UpdateAnalogInputRawDataMXP1()
+        {
+            #region ANALOG INPUT CHANNEL IN MXP1
+            SignalMonitorDataSave[5 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[5]).ToString();
+            SignalMonitorDataSave[6 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[6]).ToString();
+            SignalMonitorDataSave[7 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[7]).ToString();
+            SignalMonitorDataSave[8 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[8]).ToString();
+            SignalMonitorDataSave[9 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[9]).ToString();
+            #endregion
+        }
+
+        private void UpdateAnalogInputRawDataMXP2()
+        {
+            #region ANALOG INPUT CHANNEL IN MXP2
+            SignalMonitorDataSave[10 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[10]).ToString();
+            SignalMonitorDataSave[11 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[11]).ToString();
+            SignalMonitorDataSave[12 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[12]).ToString();
+            SignalMonitorDataSave[13 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[13]).ToString();
+            SignalMonitorDataSave[14 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[14]).ToString();
+            #endregion
+        }
+
+
+        private void UpdateAnalogInputRawDataMXP3()
+        {
+            #region ANALOG INPUT CHANNEL IN MXP3
+            SignalMonitorDataSave[15 + analogInputOffset].RawValue = (CANRXRawData._AnalogInputRawData.analogData[15]).ToString();
+            #endregion
+        }
+
+
+        #region AC INPUT RAW
+        private void UpdateACInputRawDataMXP0()
+        {
+
+            SignalMonitorDataSave[0 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.RMSVoltage[0] / ACInputRMSFactor).ToString();
+            SignalMonitorDataSave[1 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.frequency[0] / ACInputFreqFactor).ToString();
+            SignalMonitorDataSave[2 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.PeakLowVoltage[0] / ACInputPeakLFactor).ToString();
+            SignalMonitorDataSave[3 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.PeakHighVoltage[0] / ACInputPeakHFactor).ToString();
+
+        }
+
+        private void UpdateACInputRawDataMXP1()
+        {
+            SignalMonitorDataSave[4 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.RMSVoltage[1] / ACInputRMSFactor).ToString();
+            SignalMonitorDataSave[5 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.frequency[1] / ACInputFreqFactor).ToString();
+            SignalMonitorDataSave[6 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.PeakLowVoltage[1] / ACInputPeakLFactor).ToString();
+            SignalMonitorDataSave[7 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.PeakHighVoltage[1] / ACInputPeakHFactor).ToString();
+        }
+
+        private void UpdateACInputRawDataMXP2()
+        {
+            SignalMonitorDataSave[8 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.RMSVoltage[2] / ACInputRMSFactor).ToString();
+            SignalMonitorDataSave[9 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.frequency[2] / ACInputFreqFactor).ToString();
+            SignalMonitorDataSave[10 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.PeakLowVoltage[2] / ACInputPeakLFactor).ToString();
+            SignalMonitorDataSave[11 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.PeakHighVoltage[2] / ACInputPeakHFactor).ToString();
+        }
+
+        private void UpdateACInputRawDataMXP3()
+        {
+            SignalMonitorDataSave[12 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.RMSVoltage[3] / ACInputRMSFactor).ToString();
+            //AC INPUT FREQUENCY
+            SignalMonitorDataSave[13 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.frequency[3] / ACInputFreqFactor).ToString();
+            //AC INPUT PEAK L
+            SignalMonitorDataSave[14 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.PeakLowVoltage[3] / ACInputPeakLFactor).ToString();
+            //AC INPUT PEAK H
+            SignalMonitorDataSave[15 + ACInputOffset].RawValue = (CANRXRawData._ACInputRawData.PeakHighVoltage[3] / ACInputPeakHFactor).ToString();
+        }
+        #endregion
+        #endregion
+
+
+        public void updateDataFromCAN()
+        {
+            //UpdateRawMonitorData();     //update raw data to monitor
+            //UpdatePHYMonitorData();     //update phy data to monitor
+        }
+        private void UpdateDigitalInputData()
+        {
+            for (byte i = 0; i < 16; i++)
+            {
+                UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.Digital_in[i]);
+
+            }
+        }
+
+        private void UpdateAnalogInputData()
+        {
+            for (byte i = 0; i < 16; i++)
+            {
+                UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.Analog_in[i]);
+            }
+        }
+
+        private void UpdatePWMInputData()
+        {
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_in_duty[0]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_in_freq[0]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_in_duty[1]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_in_freq[1]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_in_duty[2]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_in_freq[2]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_in_duty[3]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_in_freq[3]);
+        }
+
+        private void UpdateACInputData()
+        {
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_rms[0]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_freq[0]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_peak_L[0]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_peak_H[0]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_rms[1]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_freq[1]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_peak_L[1]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_peak_H[1]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_rms[2]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_freq[2]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_peak_L[2]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_peak_H[2]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_rms[3]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_freq[3]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_peak_L[3]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_in_peak_H[3]);
+        }
+
+
+        private void UpdateDigitalOutputData()
+        {
+            for (byte i = 0; i < 16; i++)
+            {
+                UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.Digital_out[i]);
+            }
+        }
+
+        private void UpdateAnalogOutputData()
+        {
+            for (byte i = 0; i < 16; i++)
+            {
+                UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.Analog_out[i]);
+            }
+        }
+
+        private void UpdatePWMOutputData()
+        {
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_out_duty[0]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_out_freq[0]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_out_duty[1]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_out_freq[1]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_out_duty[2]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_out_freq[2]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_out_duty[3]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.PWM_out_freq[3]);
+        }
+
+        private void UpdateACOutputData()
+        {
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_rms[0]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_freq[0]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_type_wave[0]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_rms[1]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_freq[1]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_phase[1]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_type_wave[1]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_rms[2]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_freq[2]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_phase[2]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_type_wave[2]);
+
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_rms[3]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_freq[3]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_phase[3]);
+            UpdateDataToSignalSave(DataConversion.data_current_signal_monitor.AC_out_type_wave[3]);
+        }
+
+
+
+
+        private void UpdateDataToSignalSave(Signal_Title Signal)
+        {
+
+            SignalMonitorDataSave.Add(new Signal_Title()
+            {
+                Type = Signal.Type,
+                Channel = Signal.Channel,
+                IO = Signal.IO,
+                SignalName = Signal.SignalName + " " + Signal.Element,
+                Element = Signal.Element,
+                Value = Signal.Value,
+                Unit = Signal.Unit,
+                MinLabel = Signal.MinLabel,
+                MaxLabel = Signal.MaxLabel,
+                Resolution = Signal.Resolution,
+                Offset = Signal.Offset,
+                VisibleMonitor = Signal.VisibleMonitor,
+                OrderMonitor = Signal.OrderMonitor,
+                VisibleOutput = Signal.VisibleOutput,
+                OrderOutput = Signal.OrderOutput
+            });
+            SignalMonitorDataSaveExcel.Add(new Signal_Title()
+            {
+                Type = Signal.Type,
+                Channel = Signal.Channel,
+                IO = Signal.IO,
+                SignalName = Signal.SignalName,
+                Element = Signal.Element,
+                Value = Signal.Value,
+                Unit = Signal.Unit,
+                MinLabel = Signal.MinLabel,
+                MaxLabel = Signal.MaxLabel,
+                Resolution = Signal.Resolution,
+                Offset = Signal.Offset,
+                VisibleMonitor = Signal.VisibleMonitor,
+                OrderMonitor = Signal.OrderMonitor,
+                VisibleOutput = Signal.VisibleOutput,
+                OrderOutput = Signal.OrderOutput
+            });
+
+        }
+
+        public void UpdateDataFromExcel()
+        {
+
+            UpdateDigitalInputData();
+            UpdateAnalogInputData();
+            UpdatePWMInputData();
+            UpdateACInputData();
+
+            UpdateDigitalOutputData();
+            UpdateAnalogOutputData();
+            UpdatePWMOutputData();
+            UpdateACOutputData();
+
+        }
+
+        public void readDataFromExcel()
+        {
+            SignalMonitorDataSave.Clear();
+            SignalMonitorDataSaveExcel.Clear();
+            UpdateDataFromExcel();
+            FilterData();
+        }
+        private void EventChangedDefaultHandle(object sender, EventArgs e)
+        {
+            //readDataFromExcel(Read_file.List_data_current_signal_monitor);
+        }
+
+        public static void FilterData()
+        {
+            SignalMonitorDataView.Clear();
+            foreach (Signal_Title signal in SignalMonitorDataSave)
+            {
+                if (signal.VisibleMonitor.Contains("Yes"))
+                {
+                    SignalMonitorDataView.Add(signal);
+                }
+            }
+
+
+        }
+    }
+}

@@ -1,0 +1,561 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.WebSockets;
+//using System.Web.UI.WebControls;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using ControlzEx.Standard;
+using static System.Net.Mime.MediaTypeNames;
+using WPFiftool.Models;
+using System.Runtime.CompilerServices;
+using MahApps.Metro.Controls;
+using WPFiftool.ViewModels.ConfigfileViewModel;
+using System.Windows.Media.Animation;
+using static WPFiftool.Models.Common_string;
+using System.Text.RegularExpressions;
+using MaterialDesignThemes.Wpf;
+using ClosedXML.Excel;
+using DocumentFormat.OpenXml.InkML;
+using System.Security.Cryptography;
+using WPFiftool.Driver;
+using WPFiftool.Models.CAN;
+using WPFiftool.ViewModels.CANViewModel;
+using WPFiftool.ViewModels.StateMachineVM;
+using DocumentFormat.OpenXml.Drawing;
+
+namespace WPFiftool.Views
+{
+    public class ControlOutputInterface
+    {
+
+    }
+
+    public partial class ControlOutputWindow : Window
+    {
+
+        private void load_previous_value_component()
+        {
+            // author: -
+            // description: this function is update all value from previous configuration
+            // argument:-
+            // function:-
+
+            // khai báo 16 toggles switch
+            ToggleSwitch[] DigiToggleSwitches = new ToggleSwitch[DIG_ARRAY_LEN] { Digi0, Digi1, Digi2, Digi3, Digi4, Digi5, Digi6, Digi7, Digi8, Digi9, Digi10, Digi11, Digi12, Digi13, Digi14, Digi15 };
+            TextBox[] AnalogTextBoxes = new TextBox[ANA_ARRAY_LEN] { Analog0, Analog1, Analog2, Analog3, Analog4, Analog5, Analog6, Analog7, Analog8, Analog9, Analog10, Analog11, Analog12, Analog13, Analog14, Analog15 };
+            TextBox[] PWMDutyTextBoxes = new TextBox[PWM_ARRAY_LEN] { PWM0_Duty, PWM1_Duty, PWM2_Duty, PWM3_Duty }; //PWM element
+            TextBox[] PWMFreqTextBoxes = new TextBox[PWM_ARRAY_LEN] { PWM0_Freq, PWM1_Freq, PWM2_Freq, PWM3_Freq };
+            TextBox[] ACRmsTextBoxes = new TextBox[AC_ARRAY_LEN] { AC0_Rms, AC1_Rms, AC2_Rms, AC3_Rms }; // AC elements
+            TextBox[] ACFreqTextBoxes = new TextBox[AC_ARRAY_LEN] { AC0_Freq, AC1_Freq, AC2_Freq, AC3_Freq };
+            TextBox[] ACPhaseshiftTextBoxes = new TextBox[AC_ARRAY_LEN] { AC0_PhaseShift, AC1_PhaseShift, AC2_PhaseShift, AC3_PhaseShift };
+            ComboBox[] ACTypeWaveComboboxes = new ComboBox[AC_ARRAY_LEN] { AC0_TypeWave, AC1_TypeWave, AC2_TypeWave, AC3_TypeWave };
+
+            // update value of all components from config file
+            for (int i = 0; i < DigiToggleSwitches.Length; i++) // get Digital toggle switch
+            {
+                DigiToggleSwitches[i].IsOn = (DigitalOutTemp[i] == ON ? true : false);
+            }
+            for (int i = 0; i < AnalogTextBoxes.Length; i++) // get Analog initialze valuefor each channel
+            {
+                AnalogTextBoxes[i].Text = Convert.ToString(AnalogOutTemp[i]);
+                DataConversion.AnalogOut[i] = AnalogOutTemp[i]; // update value for array
+            }
+            for (int i = 0; i < PWMDutyTextBoxes.Length; i++) // get PWM initialze valuefor each channel
+            {
+                PWMDutyTextBoxes[i].Text = Convert.ToString(PWMDutyOutTemp[i]);
+                DataConversion.PWMDutyOut[i] = PWMDutyOutTemp[i]; // update value for array
+            }
+            for (int i = 0; i < PWMFreqTextBoxes.Length; i++) // get PWM initialze valuefor each channel
+            {
+                PWMFreqTextBoxes[i].Text = Convert.ToString(PWMFreqOutTemp[i]);
+                DataConversion.PWMFreqOut[i] = PWMFreqOutTemp[i]; // update value for array
+            }
+            for (int i = 0; i < ACRmsTextBoxes.Length; i++) // get AC initialze valuefor each channel
+            {
+                ACRmsTextBoxes[i].Text = Convert.ToString(ACRmsOutTemp[i]);
+                DataConversion.ACRmsOut[i] = ACRmsOutTemp[i];
+            }
+            for (int i = 0; i < ACFreqTextBoxes.Length; i++) // get AC initialze valuefor each channel
+            {
+                ACFreqTextBoxes[i].Text = Convert.ToString(ACFreqOutTemp[i]);
+                DataConversion.ACFreqOut[i] = ACFreqOutTemp[i];
+            }
+            for (int i = 1; i < ACPhaseshiftTextBoxes.Length; i++) // get AC PS (start at channel 1 because channel 0 does not have phase shift) value for each channel
+            {
+                ACPhaseshiftTextBoxes[i].Text = Convert.ToString(ACPsOutTemp[i]);
+                DataConversion.ACPsOut[i] = ACPsOutTemp[i];
+            }
+            for (int i = 0; i < ACTypeWaveComboboxes.Length; i++) // get AC initialze Typewave for each channel
+            {
+                ACTypeWaveComboboxes[i].SelectedIndex = ACTypeWaveOutTemp[i];
+            }
+        }
+        private void load_previous_visibility_component()
+        {
+            // author: -
+            // description: this function is update all visibility from previous configuration
+            // return:-
+            // note: -
+            for (int channel = 0; channel < ComponentNumber.Length; channel++)
+            {
+                if (ComponentVisibilityTemp[channel] == ON) //visible
+                {
+                    if (ComponentBorderDict.TryGetValue(channel, out Border border))
+                    {
+                        border.Visibility = Visibility.Visible;
+                    }
+                    if (ComponentChekcBoxDict.TryGetValue(channel, out CheckBox checkbox))
+                    {
+                        checkbox.IsChecked = true; // check checkbox coressponding
+                    }
+                }
+                else // invisible
+                {
+                    if (ComponentBorderDict.TryGetValue(channel, out Border border))
+                    {
+                        border.Visibility = Visibility.Collapsed;
+                    }
+                    if (ComponentChekcBoxDict.TryGetValue(channel, out CheckBox checkbox))
+                    {
+                        checkbox.IsChecked = false; // check checkbox coressponding
+                    }
+                }
+            }
+        }
+        private void save_current_data_visibility()
+        {
+            // author: -
+            // description: this function is save all component visibility 
+            // return:-
+            // note: -
+
+            for (int channel = 0; channel < ComponentNumber.Length; channel++)
+            {
+                if (ComponentBorderDict.TryGetValue(channel, out Border border))
+                {
+                    if (border.Visibility == Visibility.Visible)
+                    {
+                        ComponentVisibilityTemp[channel] = ON; // ghi lại vị trí các border đang được hiển thị trong dictionary
+                    }
+                    else
+                    {
+                        ComponentVisibilityTemp[channel] = OFF; // ghi lại vị trí các border đang được hide trong dictionary
+                    }
+                }
+            }
+        }
+        private void save_current_data_value()
+        {
+            // author: -
+            // description: this function is storage all current value of each component
+            // return:-
+            // note: -
+            Array.Copy(DataConversion.DigitalOut, DigitalOutTemp, DigitalOutTemp.Length); // Assign the current value of the Digital numbers to the temporary variable
+            Array.Copy(DataConversion.AnalogOut, AnalogOutTemp, AnalogOutTemp.Length);       // Assign the current value of the AnalogOut numbers to the temporary variable
+            Array.Copy(DataConversion.PWMDutyOut, PWMDutyOutTemp, PWMDutyOutTemp.Length);    // Assign the current value of the PWMDutyOut numbers to the temporary variable
+            Array.Copy(DataConversion.PWMFreqOut, PWMFreqOutTemp, PWMFreqOutTemp.Length);    // Assign the current value of the PWMFreqOut numbers to the temporary variable
+            Array.Copy(DataConversion.ACRmsOut, ACRmsOutTemp, ACRmsOutTemp.Length);          // Assign the current value of the ACRmsOut numbers to the temporary variable
+            Array.Copy(DataConversion.ACFreqOut, ACFreqOutTemp, ACFreqOutTemp.Length);       // Assign the current value of the ACFreqOut numbers to the temporary variable
+            Array.Copy(DataConversion.ACPsOut, ACPsOutTemp, ACPsOutTemp.Length);             // Assign the current value of the ACPsOut numbers to the temporary variable
+            Array.Copy(DataConversion.ACTypeWaveOut, ACTypeWaveOutTemp, ACTypeWaveOutTemp.Length); // Assign the current value of the ACTypeWaveOut numbers to the temporary variable
+        }
+        private void updateComponentVisibilityStatus()
+        {
+            //author: -
+            //argument:-
+            //function:-
+            foreach (var kvp in ComponentBorderDict)
+            {
+                if (kvp.Value != null && kvp.Value.Visibility == Visibility.Collapsed) // component was collapsed
+                {
+                    ComponentVisibilityStt[kvp.Key] = DataConversion.VISIBILYTY_COLLAPSED; // assign value to each element in the corresponding array
+                }
+                else // component was visible
+                {
+                    ComponentVisibilityStt[kvp.Key] = DataConversion.VISIBILYTY_VISIBLE; // assign value to each element in the corresponding array
+                }
+            }
+        }
+
+        private void Remove_Component_MouseLeftButtonUp(object sender, RoutedEventArgs e)
+        {
+            //author: -
+            //argument:-
+            //function:-
+
+            // if statement returns the border that corresponds to the variable value _selectedBorderRemove
+            if (ComponentBorderDict.TryGetValue(_selectedBorderRemove, out Border border))
+            {
+                border.Visibility = Visibility.Collapsed; // delete border from list
+            }
+            // if statement returns the checkbox that corresponds to the variable value _selectedBorderRemove
+            if (ComponentChekcBoxDict.TryGetValue(_selectedBorderRemove, out CheckBox checkbox))
+            {
+                checkbox.IsChecked = false; // un check at checkbox coressponding
+            }
+            updateComponentVisibilityStatus(); // This function should be called when the user clicks "Apply", execute the function before saving it to the config file
+        }
+
+        public void update_visibility_Digi_rs_clr(Common_string.Each_signal_data_origin excelData)
+        {
+            // author: -
+            // description: this function is update all step button value follow excel file
+            // argument: name of list data that read from excel
+            // function:-
+
+            for (int i = 0; i < DIG_ARRAY_LEN; i++)
+            {
+                if (excelData.Digital_out[i].VisibleOutput == "No")
+                {
+                    if (ComponentBorderDict.TryGetValue(i, out Border border))
+                    {
+                        border.Visibility = Visibility.Collapsed; // delete border from list
+                    }
+                    // control check box coressponding
+                    if (ComponentChekcBoxDict.TryGetValue(i, out CheckBox checkbox))
+                    {
+                        checkbox.IsChecked = false; // uncheck checkbox coressponding
+                    }
+                }
+                else if (excelData.Digital_out[i].VisibleOutput == "Yes")
+                {
+                    if (ComponentBorderDict.TryGetValue(i, out Border border))
+                    {
+                        border.Visibility = Visibility.Visible; // show border coressponding
+                    }
+                    // control check box coressponding
+                    if (ComponentChekcBoxDict.TryGetValue(i, out CheckBox checkbox))
+                    {
+                        checkbox.IsChecked = true; // check checkbox coressponding
+                    }
+                }
+            }
+        }
+        public void update_visibility_Ana_rs_clr(Common_string.Each_signal_data_origin excelData)
+        {
+            //author: -
+            // argument: name of list data that read from excel
+            //function:-
+
+            for (int i = 0; i < ANA_ARRAY_LEN; i++)
+            {
+                if (excelData.Analog_out[i].VisibleOutput == "No")
+                {
+                    if (ComponentBorderDict.TryGetValue(DataConversion.START_ARRAY_ANA + i, out Border border))
+                    {
+                        border.Visibility = Visibility.Collapsed; // delete border from list
+                    }
+                    // control check box coressponding
+                    if (ComponentChekcBoxDict.TryGetValue(DataConversion.START_ARRAY_ANA + i, out CheckBox checkbox))
+                    {
+                        checkbox.IsChecked = false; // uncheck from checkbox coressponding
+                    }
+                }
+                else if (excelData.Analog_out[i].VisibleOutput == "Yes")
+                {
+                    if (ComponentBorderDict.TryGetValue(DataConversion.START_ARRAY_ANA + i, out Border border))
+                    {
+                        border.Visibility = Visibility.Visible; // show border coressponding
+                    }
+                    // control check box coressponding
+                    if (ComponentChekcBoxDict.TryGetValue(DataConversion.START_ARRAY_ANA + i, out CheckBox checkbox))
+                    {
+                        checkbox.IsChecked = true; // check checkbox coressponding
+                    }
+                }
+            }
+        }
+        public void update_visibility_PWM_rs_clr(Common_string.Each_signal_data_origin excelData)
+        {
+            //author: -
+            // argument: name of list data that read from excel
+            //function:-
+            for (int i = 0; i < PWM_ARRAY_LEN; i++)
+            {
+                if (excelData.PWM_out_duty[i].VisibleOutput == "No")
+                {
+                    if (ComponentBorderDict.TryGetValue(DataConversion.START_ARRAY_PWM + i, out Border border))
+                    {
+                        border.Visibility = Visibility.Collapsed; // delete border from list
+                    }
+                    // control check box coressponding
+                    if (ComponentChekcBoxDict.TryGetValue(DataConversion.START_ARRAY_PWM + i, out CheckBox checkbox))
+                    {
+                        checkbox.IsChecked = false; // un check from checkbox coressponding
+                    }
+                }
+                else if (excelData.PWM_out_duty[i].VisibleOutput == "Yes")
+                {
+                    if (ComponentBorderDict.TryGetValue(DataConversion.START_ARRAY_PWM + i, out Border border))
+                    {
+                        border.Visibility = Visibility.Visible; // show border coressponding
+                    }
+                    // control check box coressponding
+                    if (ComponentChekcBoxDict.TryGetValue(DataConversion.START_ARRAY_PWM + i, out CheckBox checkbox))
+                    {
+                        checkbox.IsChecked = true; // check checkbox coressponding
+                    }
+                }
+            }
+        }
+        public void update_visibility_AC_rs_clr(Common_string.Each_signal_data_origin excelData)
+        {
+            //author: -
+            // argument: name of list data that read from excel
+            //function:-
+
+            // show/hide AC component
+            for (int i = 0; i < AC_ARRAY_LEN; i++)
+            {
+                if (excelData.AC_out_rms[i].VisibleOutput == "No")
+                {
+                    if (ComponentBorderDict.TryGetValue(DataConversion.START_ARRAY_AC + i, out Border border))
+                    {
+                        border.Visibility = Visibility.Collapsed; // delete border from list
+                    }
+                    // control check box coressponding
+                    if (ComponentChekcBoxDict.TryGetValue(DataConversion.START_ARRAY_AC + i, out CheckBox checkbox))
+                    {
+                        checkbox.IsChecked = false; // un check from checkbox coressponding
+                    }
+                }
+                else if (excelData.AC_out_rms[i].VisibleOutput == "Yes")
+                {
+                    if (ComponentBorderDict.TryGetValue(DataConversion.START_ARRAY_AC + i, out Border border))
+                    {
+                        border.Visibility = Visibility.Visible; // show border coressponding
+                    }
+                    // control check box coressponding
+                    if (ComponentChekcBoxDict.TryGetValue(DataConversion.START_ARRAY_AC + i, out CheckBox checkbox))
+                    {
+                        checkbox.IsChecked = true; // check checkbox coressponding
+                    }
+                }
+            }
+        }
+        public void update_visibility_component_rs_clr(Common_string.Each_signal_data_origin excelData)
+        {
+            // author: -
+            // argument: name of list data that read from excel
+            // function:-
+
+            // show/hide Digi component
+            update_visibility_Digi_rs_clr(excelData);
+            // show/hide Analog component
+            update_visibility_Ana_rs_clr(excelData);
+            // show/hide PWM component
+            update_visibility_PWM_rs_clr(excelData);
+            // show/hide AC component
+            update_visibility_AC_rs_clr(excelData);
+        }
+
+        private void update_component_name_rs_clr(Common_string.Each_signal_data_origin excelData)
+        {
+            //author: -
+            //argument:-
+            //function:-
+            // khai báo 16 các component name
+            TextBlock[] Digi_Name = new TextBlock[DIG_ARRAY_LEN] { Digi0_Name, Digi1_Name, Digi2_Name, Digi3_Name, Digi4_Name, Digi5_Name, Digi6_Name, Digi7_Name, Digi8_Name, Digi9_Name, Digi10_Name, Digi11_Name, Digi12_Name, Digi13_Name, Digi14_Name, Digi15_Name };
+            TextBlock[] Analog_Name = new TextBlock[ANA_ARRAY_LEN] { Ana0_Name, Ana1_Name, Ana2_Name, Ana3_Name, Ana4_Name, Ana5_Name, Ana6_Name, Ana7_Name, Ana8_Name, Ana9_Name, Ana10_Name, Ana11_Name, Ana12_Name, Ana13_Name, Ana14_Name, Ana15_Name };
+            TextBlock[] PWM_Name = new TextBlock[PWM_ARRAY_LEN] { PWM0_Name, PWM1_Name, PWM2_Name, PWM3_Name };
+            TextBlock[] AC_Name = new TextBlock[AC_ARRAY_LEN] { AC0_Name, AC1_Name, AC2_Name, AC3_Name };
+
+            // fill out name of each component
+            for (int i = 0; i < Digi_Name.Length; i++) // get Digital component name
+            {
+                Digi_Name[i].Text = excelData.Digital_out[i].SignalName;
+                Console.WriteLine(Digi_Name[i].Text);
+            }
+            for (int i = 0; i < Analog_Name.Length; i++)// get Analog component name
+            {
+                Analog_Name[i].Text = excelData.Analog_out[i].SignalName; // Analog 0
+            }
+            for (int i = 0; i < PWM_Name.Length; i++)// get Analog component name
+            {
+                PWM_Name[i].Text = excelData.PWM_out_duty[i].SignalName; // PWM 0
+            }
+            for (int i = 0; i < AC_Name.Length; i++)// get Analog component name
+            {
+                AC_Name[i].Text = excelData.AC_out_rms[i].SignalName; // AC 0
+            }
+        }
+        private void update_component_TextSuffix_rs_clr(Common_string.Each_signal_data_origin excelData)
+        {
+            // author: -
+            // description: this function is update all suffix text of all analog component follow excel file
+            //argument:-
+            //function:-
+
+            AnaUnitTypes0 = Convert.ToString(excelData.Analog_out[0].Unit);
+            AnaUnitTypes1 = Convert.ToString(excelData.Analog_out[1].Unit);
+            AnaUnitTypes2 = Convert.ToString(excelData.Analog_out[2].Unit);
+            AnaUnitTypes3 = Convert.ToString(excelData.Analog_out[3].Unit);
+            AnaUnitTypes4 = Convert.ToString(excelData.Analog_out[4].Unit);
+            AnaUnitTypes5 = Convert.ToString(excelData.Analog_out[5].Unit);
+            AnaUnitTypes6 = Convert.ToString(excelData.Analog_out[6].Unit);
+            AnaUnitTypes7 = Convert.ToString(excelData.Analog_out[7].Unit);
+            AnaUnitTypes8 = Convert.ToString(excelData.Analog_out[8].Unit);
+            AnaUnitTypes9 = Convert.ToString(excelData.Analog_out[9].Unit);
+            AnaUnitTypes10 = Convert.ToString(excelData.Analog_out[10].Unit);
+            AnaUnitTypes11 = Convert.ToString(excelData.Analog_out[11].Unit);
+            AnaUnitTypes12 = Convert.ToString(excelData.Analog_out[12].Unit);
+            AnaUnitTypes13 = Convert.ToString(excelData.Analog_out[13].Unit);
+            AnaUnitTypes14 = Convert.ToString(excelData.Analog_out[14].Unit);
+            AnaUnitTypes15 = Convert.ToString(excelData.Analog_out[15].Unit);
+        }
+
+        private void update_value_component_rs_clr(Common_string.Each_signal_data_origin excelData)
+        {
+            //author: -
+            //argument:-
+            //function:-
+
+            // khai báo 16 toggles switch
+            ToggleSwitch[] DigiToggleSwitches = new ToggleSwitch[DIG_ARRAY_LEN] { Digi0, Digi1, Digi2, Digi3, Digi4, Digi5, Digi6, Digi7, Digi8, Digi9, Digi10, Digi11, Digi12, Digi13, Digi14, Digi15 };
+            TextBox[] AnalogTextBoxes = new TextBox[DIG_ARRAY_LEN] { Analog0, Analog1, Analog2, Analog3, Analog4, Analog5, Analog6, Analog7, Analog8, Analog9, Analog10, Analog11, Analog12, Analog13, Analog14, Analog15 };
+            TextBox[] PWMDutyTextBoxes = new TextBox[PWM_ARRAY_LEN] { PWM0_Duty, PWM1_Duty, PWM2_Duty, PWM3_Duty }; //PWM element
+            TextBox[] PWMFreqTextBoxes = new TextBox[PWM_ARRAY_LEN] { PWM0_Freq, PWM1_Freq, PWM2_Freq, PWM3_Freq };
+            TextBox[] ACRmsTextBoxes = new TextBox[AC_ARRAY_LEN] { AC0_Rms, AC1_Rms, AC2_Rms, AC3_Rms }; // AC elements
+            TextBox[] ACFreqTextBoxes = new TextBox[AC_ARRAY_LEN] { AC0_Freq, AC1_Freq, AC2_Freq, AC3_Freq };
+            TextBox[] ACPhaseshiftTextBoxes = new TextBox[AC_ARRAY_LEN] { AC0_PhaseShift, AC1_PhaseShift, AC2_PhaseShift, AC3_PhaseShift };
+            ComboBox[] ACTypeWaveComboboxes = new ComboBox[AC_ARRAY_LEN] { AC0_TypeWave, AC1_TypeWave, AC2_TypeWave, AC3_TypeWave };
+
+            // update value of all components from config file
+            for (int i = 0; i < DigiToggleSwitches.Length; i++) // get Digital toggle switch cho từng
+            {
+                DigiToggleSwitches[i].IsOn = (excelData.Digital_out[i].Value == "1" ? true : false);
+                DigiToggleSwitches[i].OffContent = excelData.Digital_out[i].MinLabel;
+                DigiToggleSwitches[i].OnContent = excelData.Digital_out[i].MaxLabel;
+            }
+            for (int i = 0; i < AnalogTextBoxes.Length; i++) // get Analog initialze value for each channel
+            {
+                AnalogTextBoxes[i].Text = excelData.Analog_out[i].Value;
+                DataConversion.AnalogOut[i] = Convert.ToDouble(AnalogTextBoxes[i].Text); // update value for array
+            }
+            for (int i = 0; i < PWMDutyTextBoxes.Length; i++) // get PWM initialze value for each channel
+            {
+                PWMDutyTextBoxes[i].Text = excelData.PWM_out_duty[i].Value;
+                DataConversion.PWMDutyOut[i] = Convert.ToDouble(PWMDutyTextBoxes[i].Text); // update value for array
+            }
+            for (int i = 0; i < PWMFreqTextBoxes.Length; i++) // get PWM initialze value for each channel
+            {
+                PWMFreqTextBoxes[i].Text = excelData.PWM_out_freq[i].Value;
+                DataConversion.PWMFreqOut[i] = Convert.ToUInt32(PWMFreqTextBoxes[i].Text); // update value for array
+            }
+            for (int i = 0; i < ACRmsTextBoxes.Length; i++) // get AC initialze value for each channel
+            {
+                ACRmsTextBoxes[i].Text = excelData.AC_out_rms[i].Value;
+                DataConversion.ACRmsOut[i] = Convert.ToDouble(ACRmsTextBoxes[i].Text);
+            }
+            for (int i = 0; i < ACFreqTextBoxes.Length; i++) // get AC initialze value for each channel
+            {
+                ACFreqTextBoxes[i].Text = excelData.AC_out_freq[i].Value;
+                DataConversion.ACFreqOut[i] = Convert.ToDouble(ACFreqTextBoxes[i].Text);
+            }
+            for (int i = 1; i < ACPhaseshiftTextBoxes.Length; i++) // get AC PS(start at channel 1 because channel 0 does not have phaseshift) value for each channel
+            {
+                ACPhaseshiftTextBoxes[i].Text = excelData.AC_out_phase[i].Value;
+                DataConversion.ACPsOut[i] = Convert.ToInt16(ACPhaseshiftTextBoxes[i].Text);
+            }
+            for (int i = 0; i < ACTypeWaveComboboxes.Length; i++) // get AC initialze Typewave for each channel
+            {
+                if (excelData.AC_out_type_wave[i].Value == "Sine-Wave")
+                {
+                    ACTypeWaveComboboxes[i].SelectedIndex = 0;
+                }
+                else if (excelData.AC_out_type_wave[i].Value == "Full-Wave")
+                {
+                    ACTypeWaveComboboxes[i].SelectedIndex = 1;
+                }
+                else // Half wave
+                {
+                    ACTypeWaveComboboxes[i].SelectedIndex = 2;
+                }
+            }
+        }
+
+
+        private void update_data_from_excel_file(Common_string.Each_signal_data_origin excelData)
+        {
+            // author: -
+            // description: this function is update all step button value follow excel file
+            // return:-
+            // note: -
+
+            // update name of all components name from config file
+            update_component_name_rs_clr(excelData);
+            update_component_TextSuffix_rs_clr(excelData);
+            DataConversion.update_step_button_value_rs_clr(excelData); // update step value
+            DataConversion.update_limit_value_rs_clr(excelData); // update limit value
+
+            // show/hide Digital component
+            update_visibility_component_rs_clr(excelData);
+            // update name of all components value from config file
+            update_value_component_rs_clr(excelData);
+
+        }
+
+        private void Ana_Textbox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Create a regular expression object
+            Regex regex = new Regex("[^0-9.-]+");
+
+            //check text input 
+            if (regex.IsMatch(e.Text))
+            {
+                // block invalid text
+                e.Handled = true;
+            }
+        }
+
+        private void Duty_RMS_Textbox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Create a regular expression object
+            Regex regex = new Regex("[^0-9.]+");
+
+            //check text input 
+            if (regex.IsMatch(e.Text))
+            {
+                // block invalid text
+                e.Handled = true;
+            }
+        }
+
+        private void Freq_Textbox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Create a regular expression object
+            Regex regex = new Regex("[^0-9.]+");
+
+            //check text input 
+            if (regex.IsMatch(e.Text))
+            {
+                // block invalid text
+                e.Handled = true;
+            }
+        }
+
+        private void PS_Textbox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Create a regular expression object
+            Regex regex = new Regex("[^0-9-]+");
+
+            //check text input 
+            if (regex.IsMatch(e.Text))
+            {
+                // block invalid text
+                e.Handled = true;
+            }
+        }
+    }
+}

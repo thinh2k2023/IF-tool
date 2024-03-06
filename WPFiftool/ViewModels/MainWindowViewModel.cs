@@ -1,0 +1,705 @@
+﻿using System;
+using System.IO;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using System.Windows;
+using WPFiftool.ViewModels.LogViewModel;
+using System.Windows.Media;
+using WPFiftool.ViewModels.CANViewModel;
+using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
+using System.IO.Ports;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+using WPFiftool.Driver;
+using System.Windows.Threading;
+using System.Collections.ObjectModel;
+using static WPFiftool.Models.Common_string;
+using WPFiftool.ViewModels.ConfigfileViewModel;
+using WPFiftool.ViewModels.SignalMonitor;
+using WPFiftool.Models.CAN;
+using WPFiftool.ViewModels.StateMachineVM;
+using WPFiftool.Models.InputSignal;
+
+namespace WPFiftool.ViewModels
+{
+    public class MainWindowViewModel : Window, INotifyPropertyChanged
+    {
+        private static Timer timer;
+        private protected DateTime StartLogTime;
+        private DateTime StopLogTime = DateTime.MinValue;
+        private string savedPath = "";
+        private string fulllogfile = "";
+        private bool isTimerRunning;
+        private string elapsedtime;
+        private string logPath = "";
+
+        // for visible signal
+        public PropetyVisibleVM _PropetyVisibleVM { get; set; } = new PropetyVisibleVM();
+
+
+
+        //Event
+        public static event EventHandler StartControlHandler = delegate { };        //event handle
+        public static event EventHandler StopControlHandler = delegate { };        //event handle
+
+        public ICommand _ImportConfigfileMenu;
+        public ICommand _SaveConfigfileMenu;
+        public ICommand _SaveAsConfigfileMenu;
+        public ICommand _ClearConfigfileMenu;
+        public ICommand _ResetConfigfileMenu;
+
+
+        public ICommand _ControlStartButton;
+        private bool _ControlStartButtonEnabled;
+        public ICommand _ControlStopButton;
+        private bool _ControlStopButtonEnabled;
+
+        private static Timer RunningTimer;
+        private string _RunningTime;
+        private DateTime StartRunningTime;
+
+        private Brush _StateColor = Brushes.Gray;
+        private bool _ActiveConnectButton;
+        private string _TextBlock_ConnectionState;
+        public string _SelectPortChanged;
+        public string[] _ListPortNames;
+        public ICommand _UpdateComboBox;
+
+        CANControl _CANControl = new CANControl();
+        private ObservableCollection<Signal_Title> _SignalCollection;
+        public InputMonitor SignalMonitorList = new InputMonitor();
+
+        public ICommand ConnectToggleButtonCommand { get; private set; }
+        public ICommand ToggleButtonCommand { get; private set; }
+        public ICommand SelectPathCommand { get; private set; }
+        public ICommand ImportlogfileCommand { get; private set; }
+        public ICommand UpdateComboBoxCommand { get; private set; }
+
+        public MainWindowViewModel()
+        {
+            Read_file.Load_default_file();
+            Read_file.default_screen();
+            Read_file.Load_file_start_app();
+            SignalMonitorList.readDataFromExcel();
+            ConnectToggleButtonCommand = new RelayCommand(param => ActiveConnection());
+            SelectPathCommand = new RelayCommand(param => Configfile_log());
+            ImportlogfileCommand = new RelayCommand(param => ImportLogfile.Importlogfile(savedPath));
+            ToggleButtonCommand = new RelayCommand(param => ActiveLog());
+            UpdateComboBoxCommand = new RelayCommand(param => { ListPortNames = SerialPort.GetPortNames(); });
+            ShowLogPath();
+            ListPortNames = SerialPort.GetPortNames();
+        }
+
+        //===================================================================================================================//
+
+        public ICommand ImportConfigfileCommand
+        {
+            get
+            {
+                if (_ImportConfigfileMenu == null)
+                {
+                    _ImportConfigfileMenu = new RelayCommand(
+                        param => this.ImportConfigfile()
+                    );
+                }
+                return _ImportConfigfileMenu;
+            }
+        }
+        private void ImportConfigfile()
+        {
+            Read_file.load_File_Import();
+            SignalMonitorList.readDataFromExcel();
+        }
+
+        public ICommand SaveConfigfileCommand
+        {
+            get
+            {
+                if (_SaveConfigfileMenu == null)
+                {
+                    _SaveConfigfileMenu = new RelayCommand(
+                        param => this.SaveConfigfile()
+                    );
+                }
+                return _SaveConfigfileMenu;
+            }
+        }
+        private void SaveConfigfile()
+        {
+            Save_file.save_function();
+        }
+
+        public ICommand SaveAsConfigfileCommand
+        {
+            get
+            {
+                if (_SaveAsConfigfileMenu == null)
+                {
+                    _SaveAsConfigfileMenu = new RelayCommand(
+                        param => this.SaveAsConfigfile()
+                    );
+                }
+                return _SaveAsConfigfileMenu;
+            }
+        }
+        private void SaveAsConfigfile()
+        {
+            Save_file.save_as();
+        }
+
+        public ICommand ClearConfigfileCommand
+        {
+            get
+            {
+                if (_ClearConfigfileMenu == null)
+                {
+                    _ClearConfigfileMenu = new RelayCommand(
+                        param => this.ClearConfigfile()
+                    );
+                }
+                return _ClearConfigfileMenu;
+            }
+        }
+        private void ClearConfigfile()
+        {
+            Read_file.Load_default_file();
+            SignalMonitorList.readDataFromExcel();
+        }
+
+        public ICommand ResetConfigfileCommand
+        {
+            get
+            {
+                if (_ResetConfigfileMenu == null)
+                {
+                    _ResetConfigfileMenu = new RelayCommand(
+                        param => this.ResetConfigfile()
+                    );
+                }
+                return _ResetConfigfileMenu;
+            }
+        }
+        private void ResetConfigfile()
+        {
+            Read_file.Reset_config();
+            SignalMonitorList.readDataFromExcel();
+        }
+
+
+        //===================================================================================================================//
+
+
+        public ObservableCollection<Signal_Title> SignalCollection
+        {
+            get
+            {
+                return _SignalCollection;
+            }
+            set
+            {
+                if (_SignalCollection != value)
+                {
+                    _SignalCollection = value;
+                    OnPropertyChanged(nameof(SignalCollection));
+                }
+            }
+        }
+
+
+
+        public bool ControlStartButtonEnabled
+        {
+            get { return _ControlStartButtonEnabled; }
+            set
+            {
+                if (_ControlStartButtonEnabled != value)
+                {
+                    _ControlStartButtonEnabled = value;
+                    OnPropertyChanged(nameof(ControlStartButtonEnabled));
+                }
+            }
+        }
+        public ICommand ControlStartButton
+        {
+            get
+            {
+                if (_ControlStartButton == null)
+                {
+                    _ControlStartButton = new RelayCommand(
+                        param => this.ControlStartFunction()
+                    );
+                }
+                return _ControlStartButton;
+            }
+        }
+        public void ControlStartFunction()
+        {
+
+            StartControlHandler(null, null);
+
+            ControlStartButtonEnabled = false;
+            ControlStopButtonEnabled = true;
+        }
+        public bool ControlStopButtonEnabled
+        {
+            get { return _ControlStopButtonEnabled; }
+            set
+            {
+                if (_ControlStopButtonEnabled != value)
+                {
+                    _ControlStopButtonEnabled = value;
+                    OnPropertyChanged(nameof(ControlStopButtonEnabled));
+                }
+            }
+        }
+        public ICommand ControlStopButton
+        {
+            get
+            {
+                if (_ControlStopButton == null)
+                {
+                    _ControlStopButton = new RelayCommand(
+                        param => this.ControlStopFunction()
+                    );
+                }
+                return _ControlStopButton;
+            }
+        }
+        public void ControlStopFunction()
+        {
+            StopControlHandler(null, null);
+            ControlStartButtonEnabled = true;
+            ControlStopButtonEnabled = false;
+        }
+
+        //=======================================================================================================================//
+
+        public bool ActiveConnectButton
+        {
+            get { return _ActiveConnectButton; }
+            set
+            {
+                if (_ActiveConnectButton != value)
+                {
+                    _ActiveConnectButton = value;
+                    OnPropertyChanged(nameof(ActiveConnectButton));
+                }
+            }
+        }
+        //public ICommand UpdateComboBoxCommand
+        //{
+        //    get
+        //    {
+        //        if (_UpdateComboBox == null)
+        //        {
+        //            _UpdateComboBox = new RelayCommand(
+        //                param =>
+        //                {
+        //                    ListPortNames = SerialPort.GetPortNames();
+        //                }
+        //            );
+        //        }
+        //        return _UpdateComboBox;
+        //    }
+        //}
+        public string[] ListPortNames
+        {
+            get { return _ListPortNames; }
+            set
+            {
+                if (_ListPortNames != value)
+                {
+                    _ListPortNames = value;
+                    OnPropertyChanged(nameof(ListPortNames));
+                }
+            }
+        }
+        public string SelectPortChanged
+        {
+            get { return _SelectPortChanged; }
+            set
+            {
+                if (_SelectPortChanged != value)
+                {
+                    _SelectPortChanged = value;
+                    OnPropertyChanged(nameof(_SelectPortChanged));
+                }
+            }
+        }
+        public string TextBlock_ConnectionState
+        {
+            get { return _TextBlock_ConnectionState; }
+            set
+            {
+                if (_TextBlock_ConnectionState != value)
+                {
+                    _TextBlock_ConnectionState = value;
+                    OnPropertyChanged(nameof(TextBlock_ConnectionState));
+
+                }
+            }
+        }
+        public System.Windows.Media.Brush StateColor
+        {
+            get { return _StateColor; }
+            set
+            {
+                if (_StateColor != value)
+                {
+                    _StateColor = value;
+                    OnPropertyChanged(nameof(StateColor));
+                }
+            }
+        }
+        private void ActiveConnection()
+        {
+            string _PortNames = SelectPortChanged;
+            if (ActiveConnectButton)
+            {
+                if (_PortNames != null)
+                {
+                    ActiveConnectButton = true;
+                    ControlStartButtonEnabled = true;
+                    USBCanDriver.init_serial_port(_PortNames);
+                    TextBlock_ConnectionState = _PortNames + " is Connected";
+                    StateColor = Brushes.DodgerBlue;
+                    UpdateRunningTime();
+                    StateMachine.StateMachineInit();
+                    CANRawRXViewModel.RegisterCANRXEvent();
+                    CommError.CommErrorInit();
+                }
+                else
+                {
+                    MessageBox.Show("Please select Device COM port", "Notice communication", MessageBoxButton.OKCancel, MessageBoxImage.Asterisk, MessageBoxResult.OK);
+                    ActiveLogButton = false;
+                    ActiveConnectButton = false;
+                }
+            }
+            else
+            {
+                ActiveLogButton = false;
+                ControlStartButtonEnabled = false;
+                ControlStopButtonEnabled = false;
+                _CANControl.Close_serial_port(_PortNames);
+                USBCanDriver.CANClose();
+                TextBlock_ConnectionState = _PortNames + " is Disconnected";
+                StateColor = Brushes.Gray;
+                RunningTimer.Dispose();
+            }
+        }
+
+
+        public string RunningTime
+        {
+            get { return _RunningTime; }
+            set
+            {
+                if (_RunningTime != value)
+                {
+                    _RunningTime = value;
+                    OnPropertyChanged(nameof(RunningTime));
+                }
+            }
+        }
+        private void UpdateRunningTime()
+        {
+            StartRunningTime = DateTime.Now;
+            new Thread(() =>
+            {
+                RunningTimer = new System.Threading.Timer(ActiveRunningTimer, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
+            }).Start();
+            OnPropertyChanged(nameof(RunningTime));
+        }
+        private void ActiveRunningTimer(object state)
+        {
+            DateTime currentTime = DateTime.Now;
+            TimeSpan _RunningTime = currentTime - StartRunningTime;
+            RunningTime =
+                _RunningTime.Hours.ToString("00") + ":" +
+                _RunningTime.Minutes.ToString("00") + ":" +
+                _RunningTime.Seconds.ToString("00");
+
+        }
+
+
+        //===================================================================================================================//
+        public bool ActiveLogButton
+        {
+            get { return isTimerRunning; }
+            set
+            {
+                if (isTimerRunning != value)
+                {
+                    isTimerRunning = value;
+                    OnPropertyChanged(nameof(ActiveLogButton));
+                }
+            }
+        }
+        public string ElapsedTime
+        {
+            get { return elapsedtime; }
+            set
+            {
+                if (elapsedtime != value)
+                {
+                    elapsedtime = value;
+                    OnPropertyChanged(nameof(ElapsedTime));
+                }
+            }
+        }
+
+        public string LogPath
+        {
+            get { return logPath; }
+            set
+            {
+                if (logPath != value)
+                {
+                    logPath = value;
+                    OnPropertyChanged(nameof(LogPath));
+                }
+            }
+        }
+
+
+
+
+
+        private void ShowLogPath()
+        {
+            if (!string.IsNullOrEmpty(savedPath))
+            {
+                LogPath = savedPath;
+            }
+            else
+            {
+                LogPath = "Empty\nPlease select location to save log file!";
+            }
+        }
+
+        private void Configfile_log()
+        {
+            // Select Path for saving log file           
+            Properties.Settings.Default.SavePath = GetPathLogfile.SelectFolder();
+            Properties.Settings.Default.Save();
+            savedPath = Properties.Settings.Default.SavePath;
+            ShowLogPath();
+
+        }
+
+
+        private void StopTimer()
+        {
+            StopLogTime = DateTime.Now;
+            //timer.Dispose();
+            WriteLogData.WriteStopLogFile(StopLogTime, fulllogfile);
+            WriteLogData.SaveAndClose();
+        }
+
+        private void UpdateElapsedTime()
+        {
+            if (isTimerRunning)
+            {
+                new Thread(() =>
+                {
+                    timer = new System.Threading.Timer(ActiveTimer, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(100));
+                }).Start();
+                OnPropertyChanged(nameof(ElapsedTime));
+            }
+        }
+
+
+
+        private void ActiveTimer(object state)
+        {
+
+        }
+
+        private List<string> CAN_data_buffer = new List<string>();
+        private List<string> CAN_ID_buffer = new List<string>();
+
+        private string GetCAN_type()
+        {
+            string CAN_Type = "";
+            foreach (string CanID in CAN_ID_buffer.ToList())
+            {
+                switch (CanID)
+                {
+                    case "0x500":
+                        return CAN_Type = "TX";
+
+                    case "0x501":
+                        return CAN_Type = "TX";
+
+                    case "0x502":
+                        return CAN_Type = "TX";
+
+                    case "0x503":
+                        return CAN_Type = "TX";
+
+                    default:
+                        return CAN_Type = "RX";
+
+                }
+            }
+            return CAN_Type;
+        }
+
+        private string GCANData()
+        {
+            string getCANdata = "";
+            if (ActiveLogButton)
+            {
+                foreach (string CANData in CAN_data_buffer.ToList())
+                {
+                    getCANdata += CANData + " ";
+                }
+            }
+            else
+            {
+                getCANdata = "";
+            }
+            return getCANdata;
+        }
+
+        private string GCANID()
+        {
+            string getCANID = "";
+            if (ActiveLogButton)
+            {
+                foreach (string CANID in CAN_ID_buffer.ToList())
+                {
+                    getCANID += CANID + " ";
+                }
+            }
+            else
+            {
+                getCANID = "";
+            }
+            return getCANID;
+        }
+
+        private void ReceivedEventCallback_Log(object sender, EventArgs e)
+        {
+            if (ActiveLogButton == true && ActiveConnectButton == true)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    DateTime current = DateTime.Now;
+                    TimeSpan elapsedTime = current - StartLogTime;
+                    string CAN_data = "";
+
+                    // Add values to the lists
+                    CAN_ID_buffer.Add("0x" + WriteLogData.DecimalToHex(int.Parse(USBCanDriver.getCANID)));
+                    for (int i = 0; i < USBCanDriver.getCANDATA.Length; i++)
+                    {
+                        CAN_data += WriteLogData.DecimalToHex(int.Parse(USBCanDriver.getCANDATA[i].ToString())) + " ";
+                    }
+                    CAN_data_buffer.Add(CAN_data);
+
+                    WriteLogData.Write_CAN_Data((elapsedTime.TotalMilliseconds / 1000).ToString(), GCANID(), GetCAN_type(), GCANData());
+
+                    ElapsedTime =
+                        elapsedTime.Hours.ToString("00") + ":" +
+                        elapsedTime.Minutes.ToString("00") + ":" +
+                        elapsedTime.Seconds.ToString("00") + "." +
+                        elapsedTime.Milliseconds.ToString("00");
+
+                    CAN_data_buffer.Clear();
+                    CAN_ID_buffer.Clear();
+
+                    if (elapsedTime.Minutes >= 30)
+                    {
+                        ActiveLogButton = false;
+                        StopTimer();
+                        ActiveLog();
+                    }
+
+                });
+            }
+            else
+            {
+                DateTime current = DateTime.Now;
+                TimeSpan elapsedTime = current - current;
+                ElapsedTime =
+                    elapsedTime.Hours.ToString("00") + ":" +
+                    elapsedTime.Minutes.ToString("00") + ":" +
+                    elapsedTime.Seconds.ToString("00") + "." +
+                    elapsedTime.Milliseconds.ToString("00");
+            }
+        }
+
+        int Clickstartlogcounter = 0;
+        //Coding for write data to log file
+
+        private void ActiveLog()
+        {
+            if (ActiveConnectButton == true)
+            {
+                if (ActiveLogButton)
+                {
+                    USBCanDriver.dataUpdatedEvent += ReceivedEventCallback_Log;
+                    if (!string.IsNullOrEmpty(savedPath))
+                    {
+                        CAN_data_buffer.Clear();
+                        CAN_ID_buffer.Clear();
+
+                        ActiveLogButton = true;
+                        StartLogTime = DateTime.Now;
+                        Clickstartlogcounter++;
+
+                        // Select log file type
+                        string Typefile = ".csv";
+                        // Format log file name
+                        string FileName = StartLogTime.ToString("yyyyMMdd HHmmss") + " logxx";
+                        //string FileName = "20240117 160525 logxx"; //Uncomment for testing
+                        // Check file name                                       
+                        fulllogfile = CheckSameFileName.CheckFileName(savedPath, FileName, Typefile);
+                        //WriteLogData.WriteStartLogfile(StartLogTime);
+                        WriteLogData.WriteStartTimeToCsv(StartLogTime, fulllogfile);
+
+                    }
+                    else
+                    {
+
+                        ActiveLogButton = false;
+                        MessageBoxResult result_mb = MessageBox.Show("Please select folder to save the log file!\nClick OK to save log file", "Notice for select folder to save log file", MessageBoxButton.OKCancel, MessageBoxImage.Asterisk, MessageBoxResult.OK);
+                        if (result_mb == MessageBoxResult.OK)
+                        {
+                            Configfile_log();
+                        }
+                    }
+                }
+
+                else
+                {
+                    ActiveLogButton = false;
+
+                    if (Clickstartlogcounter >= 1)
+                    {
+                        StopTimer();
+                        Clickstartlogcounter = 0;
+                    }
+                }
+            }
+            else
+            {
+                ActiveLogButton = false;
+                //StopTimer();
+
+            }
+
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+}

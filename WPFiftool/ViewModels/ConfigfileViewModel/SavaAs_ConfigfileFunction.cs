@@ -1,0 +1,128 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ClosedXML.Excel;
+using static WPFiftool.Models.Common_string;
+using System.Windows;
+using Microsoft.Win32;
+using System.IO;
+using WPFiftool.ViewModels.ConfigfileViewModel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using OfficeOpenXml;
+
+namespace WPFiftool.ViewModels.ConfigfileViewModel
+{
+    public partial class Save_file
+    {
+        private static string Path_file_save_as;
+        public static void save_as()
+        {
+            Get_data_save();
+
+            Select_save_as_location();
+        }
+        private static void Save_as_over()
+        {
+            // Kiểm tra xem file có tồn tại không
+            if (File.Exists(Path_file_save_as))
+            {
+                MessageBoxResult result = MessageBox.Show("file already exists. Do you want to overwrite the current file?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.No)
+                {
+                    string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(Path_file_save_as);
+                    string fileExtension = Path.GetExtension(Path_file_save_as);
+                    string directory = Path.GetDirectoryName(Path_file_save_as);
+                    int fileIndex = 1;
+
+                    do
+                    {
+                        Path_file_save_as = Path.Combine(directory, $"{fileNameWithoutExtension} ({fileIndex}){fileExtension}");
+                        fileIndex++;
+                    } while (File.Exists(Path_file_save_as));
+                }
+            }
+
+        }
+        private static void Select_save_as_location()
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Excel Files|*.xlsx";
+            saveFileDialog.Title = "Save Excel File";
+            // Thêm sự kiện xử lý khi người dùng đóng cửa sổ SaveFileDialog mà không chọn tệp
+
+            // Đăng ký sự kiện FileOk
+            saveFileDialog.FileOk += Select_save_ok;
+
+            saveFileDialog.ShowDialog();
+        }
+
+        private static void Select_save_ok(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = (SaveFileDialog)sender;
+
+            if (!string.IsNullOrEmpty(saveFileDialog.FileName))
+            {
+                Path_file_save_as = saveFileDialog.FileName;
+                Save_as_over();
+
+                // Tạo một workbook mới mỗi lần muốn lưu
+                using (var wbook = new XLWorkbook())
+                {
+                    var ws_sheet1 = wbook.Worksheets.Add("ConfigData");
+                    var ws_sheet2 = wbook.AddWorksheet("AutoControl");
+                    var validateList = "\"Yes,No\"";
+                    ws_sheet1.Range("N2:N104").SetDataValidation().List(validateList, true);
+                    ws_sheet1.Range("L2:L104").SetDataValidation().List(validateList, true);
+
+                    // Ghi giá trị của title_save lần lượt vào các ô trong hàng đầu tiên
+                    for (int i = 0; i < title_save.Count; i++)
+                    {
+                        ws_sheet1.Cell(1, i + 1).Value = title_save[i].Title;
+                    }
+
+                    ws_sheet1.Cell(2, 1).InsertData(data_save);
+                    // Tự động điều chỉnh độ rộng của các cột để phù hợp với nội dung
+                    ws_sheet1.Columns().AdjustToContents();
+                    // Cộng thêm 2 khoảng trắng vào độ rộng của mỗi cột
+                    for (int i = 1; i <= ws_sheet1.Columns().Count(); i++)
+                    {
+                        ws_sheet1.Column(i).Width += 2; // Cộng thêm 2 khoảng trắng cho mỗi cột
+                    }
+
+
+                    /*start code locked column*/
+                    ws_sheet1.Unprotect();
+                    // Bỏ locked cho tất cả các ô trên sheet
+                    foreach (var cell in ws_sheet1.CellsUsed())
+                    {
+                        cell.Style.Protection.SetLocked(false);
+                    }
+                    // Khoá cột A,B,C,E với mật khẩu 123
+                    ws_sheet1.Column("A").CellsUsed().Style.Protection.SetLocked(true);
+                    ws_sheet1.Column("B").CellsUsed().Style.Protection.SetLocked(true);
+                    ws_sheet1.Column("C").CellsUsed().Style.Protection.SetLocked(true);
+                    ws_sheet1.Column("E").CellsUsed().Style.Protection.SetLocked(true);
+                    ws_sheet1.Column("H").CellsUsed().Style.Protection.SetLocked(true);
+                    // Bảo vệ lại toàn bộ sheet với mật khẩu 123
+                    ws_sheet1.Protect("123");
+                    /*end code locked column*/
+
+
+                    // Lưu workbook và thông báo khi lưu thành công
+                    wbook.SaveAs(Path_file_save_as);
+                    Properties.Settings.Default.ImportedFilePath = Path_file_save_as;
+                    Properties.Settings.Default.Save();
+                    MessageBox.Show("Save as completed", "Notification", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // Xóa danh sách để chuẩn bị cho lần lưu tiếp theo
+                    //title_save.Clear();
+                    data_save.Clear();
+                }
+            }
+        }
+
+    }
+}

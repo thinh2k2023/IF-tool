@@ -1,0 +1,697 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:local="clr-namespace:WPFiftool.Resource"
+                    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                    xmlns:local2="clr-namespace:WPFiftool.Views" >
+    <ResourceDictionary.MergedDictionaries>
+        <!--  MahApps  -->
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+        <!--<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Violet.xaml" />-->
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
+        <!--  Material Design  -->
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.DeepPurple.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Blue.xaml" />
+        
+        <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="Blue" SecondaryColor="Lime" />
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Blue.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+    
+    
+    <SolidColorBrush x:Key="MahApps.Brushes.Highlight" Color="{DynamicResource Primary400}" />
+    <SolidColorBrush x:Key="MahApps.Brushes.AccentBase" Color="{DynamicResource Primary600}" />
+    <SolidColorBrush x:Key="MahApps.Brushes.Accent" Color="{DynamicResource Primary500}" />
+    <SolidColorBrush x:Key="MahApps.Brushes.Accent2" Color="{DynamicResource Primary400}" />
+    <SolidColorBrush x:Key="MahApps.Brushes.Accent3" Color="{DynamicResource Primary300}" />
+    <SolidColorBrush x:Key="MahApps.Brushes.Accent4" Color="{DynamicResource Primary200}" />
+    <SolidColorBrush x:Key="MahApps.Brushes.WindowTitle" Color="{DynamicResource Primary700}" />
+    <SolidColorBrush x:Key="MahApps.Brushes.Selected.Foreground" Color="{DynamicResource Primary500Foreground}" />
+    <LinearGradientBrush x:Key="MahApps.Brushes.Progress" StartPoint="1.002,0.5" EndPoint="0.001,0.5">
+        <GradientStop Offset="0" Color="{DynamicResource Primary700}" />
+        <GradientStop Offset="1" Color="{DynamicResource Primary300}" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="MahApps.Brushes.CheckmarkFill" Color="{DynamicResource Primary500}" />
+    <SolidColorBrush x:Key="MahApps.Brushes.RightArrowFill" Color="{DynamicResource Primary500}" />
+    <SolidColorBrush x:Key="MahApps.Brushes.IdealForeground" Color="{DynamicResource Primary500Foreground}" />
+    <SolidColorBrush x:Key="MahApps.Brushes.IdealForegroundDisabled" Opacity="0.4" Color="{DynamicResource Primary500}" />
+
+    <Style TargetType="TextBlock" x:Key="TextBlock_ComponentName">
+        <Setter Property="FontSize" Value="12" ></Setter>
+        <Setter Property="FontFamily" Value="Segoe UI"></Setter>
+        <Setter Property="Width" Value="Auto" ></Setter>
+        <Setter Property="Margin" Value="10,-10,0,0"></Setter>
+        <!--<Setter Property="MaxLines" Value="1" ></Setter>
+    <Setter Property="MaxLength" Value="25" ></Setter>-->
+        <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <!--<Setter Property="BorderBrush" Value="{x:Null}"></Setter>-->
+        <Setter Property="Background" Value="White"></Setter>
+    </Style>
+
+    <Style TargetType="mah:ToggleSwitch" x:Key="Toggle_Digital">
+        <Setter Property="IsOn" Value="False"></Setter>
+        <Setter Property="OffContent" Value="OFF"></Setter>
+        <Setter Property="OnContent" Value="ON"></Setter>
+        <Setter Property="FontFamily" Value="Segoe UI"></Setter>
+        <Setter Property="Margin" Value="10,15"></Setter>
+        <Setter Property="Canvas.Width" Value="87"></Setter>
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Accent}"></Setter>
+    </Style>
+
+    <!--Component canvas-->
+    <Style TargetType="Canvas" x:Key="Canvas_Digital">
+        <Setter Property="Canvas.Width" Value="140"></Setter>
+        <Setter Property="Canvas.Height" Value="60"></Setter>
+        <Setter Property="AllowDrop" Value="True"></Setter>
+    </Style>
+    <Style TargetType="Canvas" x:Key="Canvas_Analog">
+        <Setter Property="Canvas.Width" Value="150"></Setter>
+        <Setter Property="Canvas.Height" Value="75"></Setter>
+        <Setter Property="AllowDrop" Value="True"></Setter>
+    </Style>
+    <Style TargetType="Canvas" x:Key="canvasPWM">
+        <Setter Property="Canvas.Width" Value="290"></Setter>
+        <Setter Property="Canvas.Height" Value="75"></Setter>
+        <Setter Property="AllowDrop" Value="True"></Setter>
+    </Style>
+    <Style TargetType="Canvas" x:Key="canvasAC">
+        <Setter Property="Canvas.Width" Value="290"></Setter>
+        <Setter Property="Canvas.Height" Value="130"></Setter>
+        <Setter Property="AllowDrop" Value="True"></Setter>
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="GroupName">
+        <Setter Property="Margin" Value="10,10,0,-5" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontFamily" Value="Segoe UI"></Setter>
+        <Setter Property="FontWeight" Value="Bold"></Setter>
+    </Style>
+
+
+
+    <Style TargetType="ToggleButton"  x:Key="ActionToggleButton_custom"
+        BasedOn="{StaticResource MaterialDesignActionToggleButton}">
+        <Setter Property="Width" Value="25"></Setter>
+        <Setter Property="Height" Value="25"></Setter>
+        <Setter Property="Background" Value="DarkGray"/>
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="true">
+                <Setter Property="Background" Value="DodgerBlue"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="Border" x:Key="border" >
+        <Setter Property="BorderBrush" Value="DodgerBlue"></Setter>
+        <Setter Property="BorderThickness" Value="1"></Setter>
+        <Setter Property="Background" Value="#FFF3F7FB"></Setter>
+        <Setter Property="CornerRadius" Value="5"></Setter>
+        <Setter Property="Margin" Value="3,15,0,3"></Setter>
+    </Style>
+    
+    
+
+    <Style TargetType = "ToggleButton"  x:Key="OnOffSwitch_custom"
+         BasedOn="{StaticResource MaterialDesignSwitchToggleButton}">
+        <Setter Property="Width" Value="80"></Setter>
+        <Setter Property="Height" Value="25"></Setter>
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="TextBlock_custom"
+        BasedOn="{StaticResource MaterialDesignOverlineTextBlock}">
+        <Setter Property="FontFamily" Value="Segoe UI"></Setter>
+        <Setter Property="Padding" Value="3"></Setter>
+        <Setter Property="FontSize" Value="15"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+    </Style>
+    <Style TargetType="TextBlock" x:Key="TextBlockSignal_custom"
+    BasedOn="{StaticResource MaterialDesignOverlineTextBlock}">
+        <Setter Property="FontFamily" Value="Segoe UI"></Setter>
+        <Setter Property="Padding" Value="3"></Setter>
+        <Setter Property="FontSize" Value="12"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <Setter Property="TextDecorations" Value="Underline"></Setter>
+    </Style>
+    <!--<Style TargetType="TextBox" x:Key="TextBox_Field_custom"
+            BasedOn="{StaticResource MaterialDesignToolForegroundButton}">
+        <Setter Property="FontFamily" Value="Segoe UI"></Setter>
+        <Setter Property="FontSize" Value="12"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <Setter Property="TextDecorations" Value="Underline"></Setter>
+    </Style>-->
+
+    <Style TargetType="{x:Type ToggleButton}" x:Key="ToggleButton_custom" >
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}"  >
+                    <Viewbox>
+                        <Border x:Name="Border" CornerRadius="10" Background="#FFFFFFFF" Width="35" Height="20" Margin="3">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="0.5" Direction="0" Opacity="0.3" />
+                            </Border.Effect>
+                            <Ellipse x:Name="Ellipse" Fill="#FFFFFFFF" Stretch="Uniform" Margin="2 1 2 1" Stroke="Gray" StrokeThickness="0.2" HorizontalAlignment="Stretch">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect BlurRadius="10" ShadowDepth="1" Opacity="0.3" Direction="260" />
+                                </Ellipse.Effect>
+                            </Ellipse>
+                        </Border>
+                    </Viewbox>
+                    <ControlTemplate.Triggers>
+                        <EventTrigger RoutedEvent="Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <ColorAnimation Storyboard.TargetName="Border" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="DodgerBlue" Duration="0:0:0.1" />
+                                    <ThicknessAnimation Storyboard.TargetName="Ellipse" Storyboard.TargetProperty="Margin" To="15 1 2 1" Duration="0:0:0.1" />
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Unchecked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <ColorAnimation Storyboard.TargetName="Border" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="White" Duration="0:0:0.1" />
+                                    <ThicknessAnimation Storyboard.TargetName="Ellipse" Storyboard.TargetProperty="Margin" To="2 1 2 1" Duration="0:0:0.1" />
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    
+    <Style TargetType="{x:Type ToggleButton}" x:Key="ToggleButtonOnOff_Custom" >
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}"  >
+                    <WrapPanel>
+                        <Border x:Name="Border" CornerRadius="10" Background="#FFFFFFFF" Width="35" Height="20" Margin="2">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="0.5" Direction="0" Opacity="0.3" />
+                            </Border.Effect>
+                            <Ellipse x:Name="Ellipse" Fill="#FFFFFFFF" Stretch="Uniform" Margin="2 1 2 1" Stroke="Gray" StrokeThickness="0.2" HorizontalAlignment="Stretch">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect BlurRadius="10" ShadowDepth="1" Opacity="0.3" Direction="260" />
+                                </Ellipse.Effect>
+                            </Ellipse>
+                        </Border>
+                        <Grid>
+                            <TextBlock x:Name="TextBlockON" Text="ON" Style="{StaticResource TextBlock_custom}" FontSize="12" Visibility="Collapsed"></TextBlock>
+                            <TextBlock x:Name="TextBlockOFF" Text="OFF" Style="{StaticResource TextBlock_custom}" FontSize="12"></TextBlock>
+                        </Grid>
+                    </WrapPanel>
+                    <ControlTemplate.Triggers>
+                        <EventTrigger RoutedEvent="Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <ColorAnimation Storyboard.TargetName="Border" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="DodgerBlue" Duration="0:0:0.1" />
+                                    <ThicknessAnimation Storyboard.TargetName="Ellipse" Storyboard.TargetProperty="Margin" To="15 1 2 1" Duration="0:0:0.1" />
+                                    <ObjectAnimationUsingKeyFrames BeginTime="0:0:0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="TextBlockON">
+                                        <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static Visibility.Visible}" />
+                                    </ObjectAnimationUsingKeyFrames>
+                                    <ObjectAnimationUsingKeyFrames BeginTime="0:0:0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="TextBlockOFF">
+                                        <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static Visibility.Collapsed}" />
+                                    </ObjectAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Unchecked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <ColorAnimation Storyboard.TargetName="Border" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="White" Duration="0:0:0.1" />
+                                    <ThicknessAnimation Storyboard.TargetName="Ellipse" Storyboard.TargetProperty="Margin" To="2 1 2 1" Duration="0:0:0.1" />
+                                    <ObjectAnimationUsingKeyFrames BeginTime="0:0:0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="TextBlockON">
+                                        <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static Visibility.Collapsed}" />
+                                    </ObjectAnimationUsingKeyFrames>
+                                    <ObjectAnimationUsingKeyFrames BeginTime="0:0:0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="TextBlockOFF">
+                                        <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static Visibility.Visible}" />
+                                    </ObjectAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--====================-->
+
+    <Style TargetType="Slider" x:Key="Slider_custom"
+        BasedOn="{StaticResource MaterialDesignSlider}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Ellipse Height="5" Width="5" Fill="Green"></Ellipse>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--====================-->
+    <SolidColorBrush x:Key="GotFocusColor" Color="LightSkyBlue" />
+    <SolidColorBrush x:Key="LostFocusColor" Color="White" />
+
+    <Style TargetType="{x:Type DataGridRow}">
+        <Setter Property="Foreground" Value="Black"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="AliceBlue"/>
+            </Trigger>
+
+            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                <!--<Setter Property="Background" Value="PowderBlue"/>-->
+            </Trigger>
+
+            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                <!--<Setter Property="Background" Value="SkyBlue"/>-->
+            </Trigger>
+
+            <EventTrigger RoutedEvent="DataGrid.GotFocus">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background">
+                            <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{StaticResource GotFocusColor}" />
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+
+            <EventTrigger RoutedEvent="DataGrid.LostFocus">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background">
+                            <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{StaticResource LostFocusColor}" />
+                        </ObjectAnimationUsingKeyFrames>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+
+
+    <!--====================-->
+
+    <Style  TargetType="{x:Type TabControl}" x:Key="TabControl_custom">
+        <Setter Property="OverridesDefaultStyle"
+       Value="True" />
+        <Setter Property="SnapsToDevicePixels"
+       Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TabControl}">
+                    <Grid KeyboardNavigation.TabNavigation="Local">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
+                                             Storyboard.TargetProperty="(Border.BorderBrush). (SolidColorBrush.Color)">
+                                            <EasingColorKeyFrame KeyTime="0"
+                                      Value="#FFAAAAAA" />
+                                        </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <TabPanel x:Name="HeaderPanel"
+                             Grid.Row="0"
+                             Panel.ZIndex="1"
+                             Margin="0,0,4,-1"
+                             IsItemsHost="True"
+                             KeyboardNavigation.TabIndex="1"
+                             Background="Transparent" />
+                        <Border x:Name="Border" Grid.Row="1" BorderThickness="1" CornerRadius="2" KeyboardNavigation.TabNavigation="Local" KeyboardNavigation.DirectionalNavigation="Contained" KeyboardNavigation.TabIndex="2">
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="0.5,1"
+                                StartPoint="0.5,0">
+                                    <GradientStop Color="{DynamicResource ContentAreaColorLight}"
+                           Offset="0" />
+                                    <GradientStop Color="{DynamicResource ContentAreaColorDark}"
+                           Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.BorderBrush>
+                                <SolidColorBrush Color="{DynamicResource BorderMediumColor}"/>
+                            </Border.BorderBrush>
+                            <ContentPresenter x:Name="PART_SelectedContentHost"
+                           Margin="4"
+                           ContentSource="SelectedContent" />
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--====================-->
+    <Style TargetType="{x:Type TabItem}" x:Key="TabItem_custom">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TabItem}">
+                    <Grid x:Name="Root">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="SelectionStates">
+                                <VisualState x:Name="Unselected" />
+                                <VisualState x:Name="Selected">
+                                    <Storyboard>
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
+                                             Storyboard.TargetProperty="(Panel.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                                            <EasingColorKeyFrame KeyTime="0" Value="AliceBlue" />
+                                        </ColorAnimationUsingKeyFrames>
+                                        <ThicknessAnimationUsingKeyFrames Storyboard.TargetProperty="(Border.BorderThickness)"
+                                                 Storyboard.TargetName="Border">
+                                            <EasingThicknessKeyFrame KeyTime="0"
+                                          Value="1,1,1,0" />
+                                        </ThicknessAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="MouseOver" />
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
+                                             Storyboard.TargetProperty="(Panel.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                                            <EasingColorKeyFrame KeyTime="0" Value="Gray" />
+                                        </ColorAnimationUsingKeyFrames>
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
+                                             Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)">
+                                            <EasingColorKeyFrame KeyTime="0" Value="AliceBlue"/>
+                                        </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border x:Name="Border" Margin="0,0,-4,0" BorderThickness="1,1,1,1" CornerRadius="2,12,0,0">
+                            <Border.BorderBrush>
+                                <SolidColorBrush Color="{DynamicResource BorderMediumColor}" />
+                            </Border.BorderBrush>
+                            <Border.Background>
+
+                                <LinearGradientBrush StartPoint="0,0"
+                                EndPoint="0,1">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="{DynamicResource ControlLightColor}"
+                               Offset="0.0" />
+                                            <GradientStop Color="{DynamicResource ControlMediumColor}"
+                               Offset="1.0" />
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+
+                            </Border.Background>
+                            <ContentPresenter x:Name="ContentSite"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           ContentSource="Header"
+                           Margin="12,2,12,2"
+                           RecognizesAccessKey="True" />
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected"
+                Value="True">
+                            <Setter Property="Panel.ZIndex"
+                 Value="100" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--====================-->
+    <Style TargetType="{x:Type GroupBox}" x:Key="GroupBox_custom">
+        <Setter Property="Margin" Value="3"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type GroupBox}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="1,1,1,0" CornerRadius="2,2,0,0" Margin="0 12 0 0">
+                            <Border.BorderBrush>
+                                <LinearGradientBrush StartPoint="0,0"
+                                   EndPoint="0,1">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="DodgerBlue" Offset="0.0" />
+                                            <GradientStop Color="DodgerBlue" Offset="1.0" />
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Border.BorderBrush>
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0"
+                                   EndPoint="0,1">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="{DynamicResource ControlLightColor}" Offset="0.0" />
+                                            <GradientStop Color="{DynamicResource ControlMediumColor}" Offset="1.0" />
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <ContentPresenter Grid.Row="0" Grid.Column="0" Margin="5 2 0 0" ContentSource="Header" RecognizesAccessKey="True" Width="Auto">
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Background" Value="Snow"></Setter>
+                                    <Setter Property="FontFamily" Value="Segoe UI"></Setter>
+                                    <Setter Property="FontWeight" Value="Bold"></Setter>
+                                    <Setter Property="FontSize" Value="15"></Setter>
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="1,0,1,1" CornerRadius="0,0,2,2">
+                            <Border.BorderBrush>
+                                <SolidColorBrush Color="DodgerBlue" />
+                            </Border.BorderBrush>
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                                    <GradientStop Color="{DynamicResource ContentAreaColorLight}" Offset="0" />
+                                    <GradientStop Color="{DynamicResource ContentAreaColorDark}"  Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <ContentPresenter Margin="4" />
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--====================-->
+    <Style TargetType="{x:Type GroupBox}" x:Key="GroupBox_child_custom">
+        <Setter Property="Margin" Value="2 2 2 2"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type GroupBox}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="1 1 1 0" CornerRadius="2,2,0,0" Margin="0 8 0 0">
+                            <Border.BorderBrush>
+                                <LinearGradientBrush StartPoint="0,0"
+                                EndPoint="0,1">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="DodgerBlue" Offset="0.0" />
+                                            <GradientStop Color="DodgerBlue" Offset="1.0" />
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Border.BorderBrush>
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0"
+                                EndPoint="0,1">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="{DynamicResource ControlLightColor}" Offset="0.0" />
+                                            <GradientStop Color="{DynamicResource ControlMediumColor}" Offset="1.0" />
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <ContentPresenter Grid.Row="0" Grid.Column="0" Margin="5 0 0 0" ContentSource="Header" RecognizesAccessKey="True" Width="Auto">
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontFamily" Value="Segoe UI"></Setter>
+                                    <Setter Property="FontSize" Value="12"></Setter>
+                                    <Setter Property="FontWeight" Value="Medium"></Setter>
+                                    <Setter Property="Background" Value="Snow"></Setter>                                    
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="1 0 1 1" CornerRadius="0,0,2,2">
+                            <Border.BorderBrush>
+                                <SolidColorBrush Color="DodgerBlue" />
+                            </Border.BorderBrush>
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                                    <GradientStop Color="{DynamicResource ContentAreaColorLight}" Offset="0" />
+                                    <GradientStop Color="{DynamicResource ContentAreaColorDark}"  Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <ContentPresenter Margin="4" />
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--====================-->
+    <Style TargetType="{x:Type GroupBox}" x:Key="GroupBox_Digital_custom">
+        <Setter Property="Margin" Value="2 2 2 2"></Setter>
+        <Setter Property="Width" Value="120"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type GroupBox}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="1 1 1 0" CornerRadius="2,2,0,0" Margin="0 8 0 0">
+                            <Border.BorderBrush>
+                                <LinearGradientBrush StartPoint="0,0"
+                            EndPoint="0,1">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="DodgerBlue" Offset="0.0" />
+                                            <GradientStop Color="DodgerBlue" Offset="1.0" />
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Border.BorderBrush>
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0"
+                            EndPoint="0,1">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="{DynamicResource ControlLightColor}" Offset="0.0" />
+                                            <GradientStop Color="{DynamicResource ControlMediumColor}" Offset="1.0" />
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <ContentPresenter Grid.Row="0" Grid.Column="0" Margin="5 0 0 0" ContentSource="Header" RecognizesAccessKey="True" Width="Auto">
+                            <ContentPresenter.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontFamily" Value="Segoe UI"></Setter>
+                                    <Setter Property="FontSize" Value="12"></Setter>
+                                    <Setter Property="FontWeight" Value="Medium"></Setter>
+                                    <Setter Property="Background" Value="Snow"></Setter>
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="1 0 1 1" CornerRadius="0,0,2,2">
+                            <Border.BorderBrush>
+                                <SolidColorBrush Color="DodgerBlue" />
+                            </Border.BorderBrush>
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                                    <GradientStop Color="{DynamicResource ContentAreaColorLight}" Offset="0" />
+                                    <GradientStop Color="{DynamicResource ContentAreaColorDark}"  Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <ContentPresenter Margin="4" />
+                        </Border>
+                        <ContentPresenter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5 0 0 0"  ContentTemplate="{TemplateBinding ContentTemplate}" 
+                                          x:Name="contentPresenter" RecognizesAccessKey="True" Width="Auto">
+                            <ContentPresenter.Resources>
+                                <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonOnOff_Custom}">
+                                <Setter Property="IsChecked" Value="True" ></Setter>
+                                </Style>
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--<ControlTemplate TargetType="TextBox" x:Key="Digital_Template_Custom" >
+        <GroupBox Header="{TemplateBinding Content}" Style="{StaticResource GroupBox_child_custom}" >
+            <WrapPanel HorizontalAlignment="Left">
+                <ToggleButton Style="{StaticResource ToggleButtonOnOff_custom}" IsChecked="{TemplateBinding }"></ToggleButton>
+            </WrapPanel>
+        </GroupBox>
+    </ControlTemplate>-->
+
+
+
+    <Style TargetType="Button"  x:Key="TriangleButton_custom"
+        BasedOn="{StaticResource MaterialDesignToolForegroundButton}">
+        <Setter Property="BorderBrush" Value="DodgerBlue"></Setter>
+        <Setter Property="Background" Value="{x:Null}"></Setter>
+        <Setter Property="BorderThickness" Value="0"></Setter>
+        <Setter Property="Padding" Value="0,-15,0,0"></Setter>
+        <Setter Property="Foreground" Value="Gray"></Setter>        
+    </Style>
+    <Style TargetType="TextBox"  x:Key="TextBoxFrequency_custom"
+        BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+        <Setter Property="TextAlignment" Value="Center"></Setter>
+        <Setter Property="Width" Value="80"></Setter>
+        <Setter Property="materialDesign:HintAssist.Hint" Value="Frequency"></Setter>
+        <Setter Property="materialDesign:TextFieldAssist.SuffixText" Value="Hz"></Setter>
+    </Style>
+    <Style TargetType="TextBox"  x:Key="TextBoxDuty_custom"
+        BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+        <Setter Property="TextAlignment" Value="Center"></Setter>
+        <Setter Property="Width" Value="80"></Setter>
+        <Setter Property="materialDesign:HintAssist.Hint" Value="Duty"></Setter>
+        <Setter Property="materialDesign:TextFieldAssist.SuffixText" Value="%"></Setter>
+    </Style>
+    <Style TargetType="TextBox"  x:Key="TextBoxPhaseShift_custom"
+        BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+        <Setter Property="TextAlignment" Value="Center"></Setter>
+        <Setter Property="Width" Value="80"></Setter>
+        <Setter Property="materialDesign:HintAssist.Hint" Value="Phase Shift"></Setter>
+        <Setter Property="materialDesign:TextFieldAssist.SuffixText" Value="°"></Setter>
+    </Style>
+    <Style TargetType="TextBox"  x:Key="TextBoxRMS_custom"
+        BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
+        <Setter Property="TextAlignment" Value="Center"></Setter>
+        <Setter Property="Width" Value="80"></Setter>
+        <Setter Property="materialDesign:HintAssist.Hint" Value="RMS"></Setter>
+        <Setter Property="materialDesign:TextFieldAssist.SuffixText" Value="V"></Setter>
+    </Style>
+
+
+</ResourceDictionary>
